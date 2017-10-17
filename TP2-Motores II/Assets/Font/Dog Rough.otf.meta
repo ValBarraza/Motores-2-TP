@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: f62676a03eedd0e4fb33fb1aeb7f219c
+timeCreated: 1508127191
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Dog Rough
+  fontNames:
+  - Dog Rough
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
