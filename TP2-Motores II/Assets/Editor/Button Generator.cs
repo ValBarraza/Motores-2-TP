@@ -5,8 +5,6 @@ using UnityEditor;
 using UnityEngine.UI;
 
 
-
-
 public class ButtonGenerator : EditorWindow
 {
 
@@ -21,6 +19,7 @@ public class ButtonGenerator : EditorWindow
     public Color textBcolor;
 
     public Canvas theCanvas;
+    public bool onButton;
 
     /*public delegate void ClickOn();
     public ClickOn delegate1;*/
@@ -46,7 +45,9 @@ public class ButtonGenerator : EditorWindow
             var.AddListener(TheFunction);
             Debug.Log("add Listener");
         }*/
-      
+        onButton = false;
+        Fix();
+
 
     }
 
@@ -56,7 +57,7 @@ public class ButtonGenerator : EditorWindow
         EditorGUILayout.Space();
 
         EditorGUILayout.LabelField("1ª Image and position", EditorStyles.boldLabel);
-        buttonObject = (Button)EditorGUILayout.ObjectField("Button: ", buttonObject, typeof(Button), false);
+        //buttonObject = (Button)EditorGUILayout.ObjectField("Button: ", buttonObject, typeof(Button), false);
         buttonSprite = (Sprite)EditorGUILayout.ObjectField("Sprite: ", buttonSprite, typeof(Sprite), true);
         buttonPos = EditorGUILayout.Vector3Field("Position: ", buttonPos);
         buttonSize = EditorGUILayout.Vector2Field("Size: ", buttonSize);
@@ -74,6 +75,7 @@ public class ButtonGenerator : EditorWindow
         EditorGUILayout.LabelField("3ª The Action you want:", EditorStyles.boldLabel);
         EditorGUILayout.BeginHorizontal();
         //Dentro de la fc On Click!!
+        
         onClick = (GameObject)EditorGUILayout.ObjectField("The Object with the action:", onClick, typeof(GameObject), true);
         if (onClick != null)
         {
@@ -88,6 +90,15 @@ public class ButtonGenerator : EditorWindow
         if (GUILayout.Button("Build"))
         {
             TheButton();
+            onButton = true;
+            
+        }
+
+        if(onButton == true)
+        {
+            Button.ButtonClickedEvent var = buttonObject.GetComponent<Button>().onClick;
+            var.AddListener(TheFunction);
+            Debug.Log("add Listener");
         }
 
 
@@ -118,8 +129,7 @@ public class ButtonGenerator : EditorWindow
         txtBNew.GetComponent<Text>().text = buttonText;
         //txtBNew.GetComponent<Text>().fontStyle //popup de estilos 
         txtBNew.GetComponent<Text>().fontSize = fontSize;
-        //txtBNew.GetComponent<Text>().color = textBcolor; //no toma el color 
-        txtBNew.GetComponent<Text>().color = Color.black;
+        txtBNew.GetComponent<Text>().color = textBcolor;
         txtBNew.GetComponent<RectTransform>().position = new Vector3(buttonPos.x, buttonPos.y, buttonPos.z);
         txtBNew.GetComponent<RectTransform>().sizeDelta = new Vector2(buttonSize.x, buttonSize.y);
         txtBNew.GetComponent<Text>().alignment = TextAnchor.MiddleCenter; // mostrar opcones, capaz?
@@ -127,7 +137,7 @@ public class ButtonGenerator : EditorWindow
         txtBNew.transform.SetParent(buttonNew.transform);
         Button.ButtonClickedEvent var = buttonNew.GetComponent<Button>().onClick;
         var.AddListener(TheFunction);
-        //SE GUARDA LA VARIABLE LOCAL CON EL COMPONENTE BUTTON A OTRA VARIABLE PARA ACCEDERLA DE OTROS LADOS
+        
         buttonObject = buttonNew.GetComponent<Button>();
 
         //buttonNew.GetComponent<Button>().onClick.AddListener(TheFunction);
@@ -144,7 +154,13 @@ public class ButtonGenerator : EditorWindow
 
     }
 
-
+    public void Fix()
+    {
+        buttonSize = new Vector2(150, 60);
+        buttonText = "New Text";
+        fontSize = 14;
+        textBcolor = Color.black;
+    }
 
 }
 
