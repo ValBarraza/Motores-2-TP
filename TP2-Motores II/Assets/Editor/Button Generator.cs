@@ -40,6 +40,14 @@ public class ButtonGenerator : EditorWindow
         btn.onClick.AddListener(TheFunction);*/
         theCanvas = FindObjectOfType<Canvas>();
 
+        /*if (buttonObject != null)
+        {
+            Button.ButtonClickedEvent var = buttonObject.GetComponent<Button>().onClick;
+            var.AddListener(TheFunction);
+            Debug.Log("add Listener");
+        }*/
+      
+
     }
 
 
@@ -48,7 +56,7 @@ public class ButtonGenerator : EditorWindow
         EditorGUILayout.Space();
 
         EditorGUILayout.LabelField("1ª Image and position", EditorStyles.boldLabel);
-        //buttonObject = (Button)EditorGUILayout.ObjectField("Button: ", buttonObject, typeof(Button), false);
+        buttonObject = (Button)EditorGUILayout.ObjectField("Button: ", buttonObject, typeof(Button), false);
         buttonSprite = (Sprite)EditorGUILayout.ObjectField("Sprite: ", buttonSprite, typeof(Sprite), true);
         buttonPos = EditorGUILayout.Vector3Field("Position: ", buttonPos);
         buttonSize = EditorGUILayout.Vector2Field("Size: ", buttonSize);
@@ -117,12 +125,15 @@ public class ButtonGenerator : EditorWindow
         txtBNew.GetComponent<Text>().alignment = TextAnchor.MiddleCenter; // mostrar opcones, capaz?
 
         txtBNew.transform.SetParent(buttonNew.transform);
+        Button.ButtonClickedEvent var = buttonNew.GetComponent<Button>().onClick;
+        var.AddListener(TheFunction);
+        //SE GUARDA LA VARIABLE LOCAL CON EL COMPONENTE BUTTON A OTRA VARIABLE PARA ACCEDERLA DE OTROS LADOS
+        buttonObject = buttonNew.GetComponent<Button>();
 
         //buttonNew.GetComponent<Button>().onClick.AddListener(TheFunction);
         //buttonNew.GetComponent<Button>().onClick.AddListener(() => { TheFunction(); });
         //buttonNew.GetComponent<Button>().onClick.Invoke();
-        Button.ButtonClickedEvent var = buttonNew.GetComponent<Button>().onClick;
-        var.AddListener(TheFunction);
+       
     }
 
 
