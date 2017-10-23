@@ -84,7 +84,9 @@ public class MiniMapGenerator : EditorWindow {
         EditorGUILayout.LabelField(" high camera ");
         _highCam = EditorGUILayout.IntField(_highCam);
         // _cam.GetComponent<Camera>().fieldOfView = fow;
+        if (_cam != null)
         _cam.transform.position = new Vector3(0, _highCam, 0);
+
         if (GUILayout.Button("add camera and MiniMap"))
         {
             SetOfCam();
