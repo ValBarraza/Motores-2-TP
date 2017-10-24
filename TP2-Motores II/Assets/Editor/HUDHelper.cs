@@ -5,14 +5,13 @@ using UnityEditor;
 
 public class HUDHelper : EditorWindow
 {
-    private bool _groupToggle;
-    private bool _okay;
-    private bool _yesButton;
-    private bool _yesText;
-    private bool _yesMinimap;
-    private bool isOPen;
+    //private bool _currentPopUp;
+    private ButtonGenerator _isCreated;
+    private bool _hideText;
 
-    [MenuItem("HUDHelper/Helper")]
+    private GameObject target;
+
+    [MenuItem("HUD/Helper")]
     static void myWindow()
     {
         ((HUDHelper)GetWindow(typeof(HUDHelper))).Show();
@@ -20,98 +19,80 @@ public class HUDHelper : EditorWindow
 
     private void OnGUI()
     {
-        minSize =new Vector2(380, 200);
+        minSize = new Vector2(380, 200);
 
-        GUILayout.Label("Do you wanna learn more about this HUD Generator?", EditorStyles.boldLabel);
+        GUILayout.Label("¿Desea aprender mas del HUD Generator?", EditorStyles.boldLabel);
+
+        //boton que abre la ventana de botones
+        Rect rectCreateButton = EditorGUILayout.BeginHorizontal("Button");
+        if (GUI.Button(rectCreateButton, GUIContent.none))
+        {
+            ((ButtonGenerator)GetWindow(typeof(ButtonGenerator))).Show();
+            /*if (_isCreated != null)
+            {
+               _hideText= _isCreated.onButton;
+            }*/
+            
+        }
+        GUILayout.Label("Creador de botones");
+        EditorGUILayout.EndHorizontal();
+        
+        GUILayout.Label("En la ventana de Button Generator puedes ver las siguiente opciones:", EditorStyles.boldLabel);
+        GUILayout.Label("Al derecho de Sprite debes seleccionar el tipo de boton que quieres crear.");
+        GUILayout.Label("En Position pones el lugar en el que quieres que aparezca.");
+        GUILayout.Label("Size: dimensiones de ancho(X) y alto(Y).");
+        GUILayout.Label("Text: nombre que quieres que el botón muestre.");
+        GUILayout.Label("Font: tipografia del texto del botón.");
+        GUILayout.Label("Text Color: es para elegir el color.");
+
+        GUILayout.Label("Una vez hecho todo esto solo debes dar clic al botón Build para crear el botón.");
+
+        //quiero tener acceso a las variables de los otros windows editors
+        /*if (_isCreated.onClick != true)
+        {
+            GUILayout.Label("En la ventana de Button Generator puedes ver las siguiente opciones:", EditorStyles.boldLabel);
+            GUILayout.Label("Al derecho de Sprite debes seleccionar el tipo de boton que quieres crear.");
+            GUILayout.Label("En Position pones el lugar en el que quieres que aparezca.");
+            GUILayout.Label("Size: dimensiones de ancho(X) y alto(Y).");
+            GUILayout.Label("Text: nombre que quieres que el botón muestre.");
+            GUILayout.Label("Font: tipografia del texto del botón.");
+            GUILayout.Label("Text Color: es para elegir el color.");
+
+            GUILayout.Label("Una vez hecho todo esto solo debes dar clic al botón Build para crear el botón.");
+        }*/
 
 
-        Rect rectYes = EditorGUILayout.BeginHorizontal("Button");
-        if (GUI.Button(rectYes, GUIContent.none))
-            _groupToggle = true;
-        GUILayout.Label("Yes");
+        //boton que abre la ventana de textos
+        Rect rectTextGenerator = EditorGUILayout.BeginHorizontal("Button");
+        if (GUI.Button(rectTextGenerator, GUIContent.none))
+        {
+            ((TextGenerator)GetWindow(typeof(TextGenerator))).Show();
+        }
+        GUILayout.Label("Create a text");
         EditorGUILayout.EndHorizontal();
 
-        Rect rectNO = EditorGUILayout.BeginHorizontal("Button");
-        if (GUI.Button(rectNO, GUIContent.none))
-            _okay = true;
-        GUILayout.Label("No");
+        GUILayout.Label("Canvas: el canvas del texto a modificar.");
+        GUILayout.Label("aay dios: el texto que quieras editar.");
+        GUILayout.Label("Fuente: la tipografia para el texto.");
+        
+        //boton que abre la ventana del minimapa
+        Rect rectMinimMap = EditorGUILayout.BeginHorizontal("Button");
+        if (GUI.Button(rectMinimMap, GUIContent.none))
+        {
+            ((MiniMapGenerator)GetWindow(typeof(MiniMapGenerator))).Show();
+        }
+        GUILayout.Label("Create a minimap");
         EditorGUILayout.EndHorizontal();
 
-        if (_okay== true)
-        {
-            GUILayout.Label(":c okay", EditorStyles.boldLabel);
-        }
+        GUILayout.Label("View: selecciona la camara de la escena.");
+        GUILayout.Label("View Scene: selecciona la forma forma que quieres que tenga tu minimapa en la escena.");
+        GUILayout.Label("Size texture: tamaño de la textura de tu minimapa.");
+        GUILayout.Label("Size map: tamaño real del mapa a escalar.");
 
-        if (_groupToggle == true)
-        {
-            GUILayout.Label("Let me help you kid", EditorStyles.boldLabel);
-            EditorGUILayout.BeginHorizontal();
-            GUILayout.Label("In Button option you can find diferent style of button");
-            EditorGUILayout.EndHorizontal();
-            EditorGUILayout.BeginHorizontal();
-            GUILayout.Label("In Text write the text you want in it douh");
-            EditorGUILayout.EndHorizontal();
-
-            GUILayout.Label("do you wanna try to create one?", EditorStyles.boldLabel);
-            if (isOPen == false)
-            {
-                Rect rectYesToButton = EditorGUILayout.BeginHorizontal("Button");
-                if (GUI.Button(rectYesToButton, GUIContent.none))
-                {
-                    _yesButton = true;
-                    isOPen = true;
-                }
-                GUILayout.Label("yes");
-                EditorGUILayout.EndHorizontal();
-            }
-            /*Rect rectYesToButton = EditorGUILayout.BeginVertical("Button");
-            if (GUI.Button(rectYesToButton, GUIContent.none))
-            {
-                _yesButton = true;
-                isOPen = true;
-            }
-            GUILayout.Label("yes");
-            EditorGUILayout.EndVertical();*/
-
-            if (_yesButton == true)
-            {
-                //boton que abre la ventana de botones
-                Rect rectCreateButton = EditorGUILayout.BeginHorizontal("Button");
-                if (GUI.Button(rectCreateButton, GUIContent.none))
-                {
-                    ((ButtonGenerator)GetWindow(typeof(ButtonGenerator))).Show();
-                }
-                GUILayout.Label("Create a button");
-                EditorGUILayout.EndHorizontal();
-            }
-
-            if (_yesText == true)
-            {
-
-            }
-
-            //boton que abre la ventana de textos
-            Rect rectTextGenerator = EditorGUILayout.BeginHorizontal("Button");
-            if (GUI.Button(rectTextGenerator, GUIContent.none))
-            {
-                ((TextGenerator)GetWindow(typeof(TextGenerator))).Show();
-            }
-            GUILayout.Label("Create a text");
-            EditorGUILayout.EndHorizontal();
-
-            //boton que abre la ventana del minimapa
-            Rect rectMinimMap = EditorGUILayout.BeginHorizontal("Button");
-            if (GUI.Button(rectMinimMap, GUIContent.none))
-            {
-                ((MiniMapGenerator)GetWindow(typeof(MiniMapGenerator))).Show();
-            }
-            GUILayout.Label("Create a minimap");
-            EditorGUILayout.EndHorizontal();
-        }
 
         
 
-
     }
+    
 }
 
