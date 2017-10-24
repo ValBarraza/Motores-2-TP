@@ -15,7 +15,9 @@ public class MiniMapGenerator : EditorWindow {
     private GameObject cam;
     private int _highCam;
     private float fow;
-
+    private string _nameCam;
+    private GameObject _targetToFollow;
+    private List<Camera> _camerasInScene = new List<Camera>();
     
 
 
@@ -24,14 +26,22 @@ public class MiniMapGenerator : EditorWindow {
     private RenderTexture _RTexture;
     private int _highRenderTexture;
     private int _widthRenderTexture;
+    private bool _changeSideRTexture = false;
+    private List<RenderTexture> _texturesInScene = new List<RenderTexture>();
 
     //MAP
-    private GameObject _imageCont;
+    private RawImage _miniMap;
     private int _highMap;
     private int _widthMap;
+    private float _positionXmap;
+    private float _positionYmap;
+    private string _nameMap;
+    private List<RawImage> _mapsInScene = new List<RawImage>();
 
 
-
+    //ORGANIZADOR SECCIONES
+    private bool _showStep1;
+    private bool _showStep2;
    
    
 
@@ -54,76 +64,273 @@ public class MiniMapGenerator : EditorWindow {
 
     private void OnGUI()
     {
-        _cam = (Camera)EditorGUILayout.ObjectField("view(camera)", _cam, typeof(Camera), true);
-        _RTexture = (RenderTexture)EditorGUILayout.ObjectField("view(minimap in scene)", _RTexture, typeof(RenderTexture), true);
-
-        EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.LabelField(" size texture ");
-        _highRenderTexture = EditorGUILayout.IntField(_highRenderTexture);
-        EditorGUILayout.LabelField(" x ");
-        _widthRenderTexture = EditorGUILayout.IntField(_widthRenderTexture);
-        EditorGUILayout.EndHorizontal();
-        if (_highRenderTexture <= 0 || _widthRenderTexture <= 0)
-        {
-            EditorGUILayout.HelpBox("sizes of the texture render can't be 0", MessageType.Error);
-        }
+        //GUI.DrawTexture(GUILayoutUtility.GetRect(335, 241), (Texture2D)Resources.Load("advice"));
+   
 
 
-        EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.LabelField(" size map ");
-        _highMap = EditorGUILayout.IntField(_highMap);
-        EditorGUILayout.LabelField(" x ");
-        _widthMap = EditorGUILayout.IntField(_widthMap);
-        EditorGUILayout.EndHorizontal();
-        if (_highMap <= 0 || _widthMap <= 0)
-        {
-            EditorGUILayout.HelpBox("sizes of the map render can't be 0", MessageType.Error);
-        }
-
-
-        EditorGUILayout.LabelField(" high camera ");
-        _highCam = EditorGUILayout.IntField(_highCam);
-        // _cam.GetComponent<Camera>().fieldOfView = fow;
-        if (_cam != null)
-        _cam.transform.position = new Vector3(0, _highCam, 0);
-
-        if (GUILayout.Button("add camera and MiniMap"))
-        {
-            SetOfCam();
-            SetOfMiniMap();
-        }
+        Intro();
 
         SetCanvas();
+        EditorGUILayout.Space();
+        EditorGUILayout.Space();
+        EditorGUILayout.Space();
+
+        Step1();
+        Step2();
 
 
+        EditorGUILayout.Space();
+        EditorGUILayout.Space();
+        EditorGUILayout.Space();
 
-        if (GUILayout.Button("add Render Texture"))
-        {
-            SetRenderTexture();
-        }
 
-      
+        SetOfCamerasCreated();
 
     }
 
 
-//CONFIGURACION RENDER TEXTURE
-    void SetRenderTexture()
+    //SECCIONES
+    void Intro()
     {
+        EditorGUILayout.Space();
+        EditorGUILayout.Space();
+        EditorGUILayout.BeginHorizontal();
+        GUI.DrawTexture(GUILayoutUtility.GetRect(75, 200), (Texture2D)Resources.Load("minimap"));
+        EditorGUILayout.LabelField("Welcome to the MINI MAP GENERATOR", EditorStyles.centeredGreyMiniLabel);
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.LabelField("here you will create a basic minimap with a few simple steps");
+        EditorGUILayout.Space();
+        EditorGUILayout.Space();
+        EditorGUILayout.Space();
+    }
+    void Step1()
+    {
+
+        EditorGUILayout.LabelField("1° step: Create a Camera", EditorStyles.boldLabel);
+        _showStep1 = EditorGUILayout.Foldout(_showStep1, "Camera Creator");
+        if (_showStep1)
+        {
+            //NOMBRE
+            EditorGUILayout.BeginHorizontal();
+            _nameCam = EditorGUILayout.TextField("name Camera ", _nameCam, GUILayout.Width(400));
+            EditorGUILayout.EndHorizontal();
+
+            //ALTURA
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("✦ set a high for the minimap's Camera: ", GUILayout.Width(300f));
+            _highCam = EditorGUILayout.IntField(_highCam, GUILayout.Width(50f));
+            EditorGUILayout.EndHorizontal();
+            if (_highCam <= 0)
+                EditorGUILayout.HelpBox("the high is 0", MessageType.Warning);
+
+            //VISTA
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("✦ set camera's range view: ", GUILayout.Width(300f));
+            fow = EditorGUILayout.FloatField(fow, GUILayout.Width(50f));
+            EditorGUILayout.EndHorizontal();
+
+            //TARGET
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("✦ set a target to follow ", GUILayout.Width(300f));
+            _targetToFollow = (GameObject)EditorGUILayout.ObjectField(_targetToFollow, typeof(GameObject), true);
+            EditorGUILayout.EndHorizontal();
+
+
+
+
+            //SET
+
+            
+            
+
+            if (fow <= 0)
+            {
+                fow = 0;
+                EditorGUILayout.HelpBox("the range of view can be 0 or less", MessageType.Error);
+            }
+
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("✦ push the button for add a Camera-follow to target", GUILayout.Width(300f));
+            if (GUILayout.Button("Add Camera",GUILayout.Width(250)))
+            {
+                SetOfCam(_nameCam);
+                if (_targetToFollow != null)
+                    _cam.transform.SetParent(_targetToFollow.transform);
+                    
+
+            }
+            EditorGUILayout.EndHorizontal();
+        }
+
+        if (_cam != null)
+        {
+            if (fow > 0)
+            {
+                _cam.GetComponent<Camera>().fieldOfView = fow;
+            }
+            else
+            {
+                fow = 1f;
+            }
+
+            _cam.transform.position = new Vector3(0, _highCam, 0);
+        }
+        EditorGUILayout.Space();
+        EditorGUILayout.Space();
+        EditorGUILayout.Space();
+    }
+    void Step2()
+    {
+        EditorGUILayout.LabelField("2° step: MiniMap (image)", EditorStyles.boldLabel);
+        _showStep2 = EditorGUILayout.Foldout(_showStep2, "Camera Creator");
+        if (_showStep2)
+        {
+            EditorGUILayout.BeginHorizontal();
+            _nameMap = EditorGUILayout.TextField("✦ name Minimap ", _nameMap, GUILayout.Width(400));
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("✦ Size of map ", GUILayout.Width(100));
+            EditorGUILayout.LabelField(" high: ", EditorStyles.miniBoldLabel, GUILayout.Width(30));
+            _highMap = EditorGUILayout.IntField(_highMap, GUILayout.Width(50));
+
+            EditorGUILayout.LabelField(" width: ", EditorStyles.miniBoldLabel, GUILayout.Width(35));
+            _widthMap = EditorGUILayout.IntField(_widthMap, GUILayout.Width(50));
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("✦ position of map ", GUILayout.Width(100));
+            EditorGUILayout.LabelField(" position X: ", EditorStyles.miniBoldLabel, GUILayout.Width(60));
+            _positionXmap = EditorGUILayout.FloatField(_positionXmap, GUILayout.Width(50));
+
+            EditorGUILayout.LabelField(" position Y: ", EditorStyles.miniBoldLabel, GUILayout.Width(60));
+            _positionYmap = EditorGUILayout.FloatField(_positionYmap, GUILayout.Width(50));
+            EditorGUILayout.EndHorizontal();
+
+
+            if (_highMap <= 0 || _widthMap <= 0)
+            {
+                EditorGUILayout.HelpBox("sizes of the map render can't be 0", MessageType.Error);
+            }
+
+            _changeSideRTexture = EditorGUILayout.Toggle("custom side texture Render", _changeSideRTexture);
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("✦ push the button for add a MiniMap to Canvas", GUILayout.Width(300f));
+            if (GUILayout.Button("Add MiniMap", GUILayout.Width(250)))
+            {
+
+                SetOfMiniMap(_nameMap);
+                SetRenderTexture(_nameMap);
+               
+            }
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.Space();
+            EditorGUILayout.Space();
+            EditorGUILayout.Space();
+            RenderTextureGUI();
+        }
+    }
+
+    //RECONFIGURACION
+    void SetOfCamerasCreated()
+    {
+        EditorGUILayout.LabelField("Cameras created", EditorStyles.boldLabel);
+        _cam = (Camera)EditorGUILayout.ObjectField("Current Camera", _cam, typeof(Camera), true);
+        _miniMap = (RawImage)EditorGUILayout.ObjectField("Its MiniMap", _miniMap, typeof(RawImage), true);
+
+        EditorGUILayout.Space();
+
+        EditorGUILayout.LabelField("Cameras in scene: ", EditorStyles.miniBoldLabel);
+        for (int i = 0; i < _camerasInScene.Count; i++)
+        {
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.ObjectField(_camerasInScene[i].name, _camerasInScene[i], typeof(Camera), true);
+            EditorGUILayout.ObjectField(_mapsInScene[i].name, _mapsInScene[i], typeof(RawImage), true);
+
+            if (GUILayout.Button("select"))
+            {
+                _cam = _camerasInScene[i];
+                _miniMap = _mapsInScene[i];
+            }
+               
+
+            if (GUILayout.Button("delete"))
+            {
+                DestroyImmediate(_camerasInScene[i].gameObject);
+                DestroyImmediate(_mapsInScene[i].gameObject);
+                _camerasInScene.RemoveAt(i);
+
+                if(_mapsInScene[i] != null)
+                _mapsInScene.RemoveAt(i);
+            }
+                
+                
+
+            EditorGUILayout.EndHorizontal();
+        }
+
+
+        EditorGUILayout.Space();
+        EditorGUILayout.Space();
+        EditorGUILayout.Space();
+    }
+
+//CONFIGURACION RENDER TEXTURE
+    void SetRenderTexture(string nameRender)
+    {
+        RenderTexture renderTexture = new RenderTexture(255, 255, 1);
+        AssetDatabase.CreateAsset(renderTexture, "Assets/Images/" + nameRender + ".renderTexture");
+        _RTexture = renderTexture;
+        _texturesInScene.Add(_RTexture);
+        for (int i = 0; i < _texturesInScene.Count; i++)
+        {
+            _mapsInScene[i].GetComponent<RawImage>().texture = _texturesInScene[i];
+            _camerasInScene[i].GetComponent<Camera>().targetTexture = _texturesInScene[i];
+
+            //_miniMap.GetComponent<RawImage>().texture = renderTexture;
+            //cam.GetComponent<Camera>().targetTexture = renderTexture;
+        }
+        
+
         if (_highRenderTexture > 0 || _widthRenderTexture > 0)
         {
-            RenderTexture renderTexture = new RenderTexture(_highRenderTexture, _widthRenderTexture, 1);
-            AssetDatabase.CreateAsset(renderTexture, "Assets/MyTextureNew.renderTexture");
-            _imageCont.GetComponent<RawImage>().texture = renderTexture;
-            cam.GetComponent<Camera>().targetTexture = renderTexture;
-            _RTexture = renderTexture;
+            if (_changeSideRTexture){
+                RenderTexture renderTexturecustom = new RenderTexture(_highRenderTexture, _widthRenderTexture, 1);
+                AssetDatabase.CreateAsset(renderTexturecustom, "Assets/Images/" + nameRender + ".renderTexture");
+                _RTexture = renderTexturecustom;
+                _texturesInScene.Add(_RTexture);
+                _miniMap.GetComponent<RawImage>().texture = renderTexturecustom;
+                cam.GetComponent<Camera>().targetTexture = renderTexturecustom;
+            }
+           
+        }
+    }
+    void RenderTextureGUI()
+    {
+
+        _RTexture = (RenderTexture)EditorGUILayout.ObjectField("view(minimap in scene)", _RTexture, typeof(RenderTexture), true, GUILayout.Width(250));
+        
+        if (_changeSideRTexture)
+        {
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField(" size texture ", GUILayout.Width(100));
+            _highRenderTexture = EditorGUILayout.IntField(_highRenderTexture, GUILayout.Width(50));
+            EditorGUILayout.LabelField(" x ", GUILayout.Width(25));
+            _widthRenderTexture = EditorGUILayout.IntField(_widthRenderTexture, GUILayout.Width(50));
+            EditorGUILayout.EndHorizontal();
+            if (_highRenderTexture <= 0 || _widthRenderTexture <= 0)
+            {
+                EditorGUILayout.HelpBox("sizes of the texture render can't be 0", MessageType.Error);
+            }
         }
     }
 
  //CONFIGURACION DEL CANVAS
     void SetCanvas()
     {
-        if (GUILayout.Button("add canvas") && FindObjectOfType<Canvas>() == null)
+        if (GUILayout.Button("add canvas", GUILayout.Width(250)) && FindObjectOfType<Canvas>() == null)
         {
             _canvas = new GameObject();
             _canvas.AddComponent<RectTransform>();
@@ -143,7 +350,7 @@ public class MiniMapGenerator : EditorWindow {
     }
 
  //CONFIGURACION DE LA CAM
-   void SetOfCam()
+   void SetOfCam(string name)
     {
         cam = new GameObject();
         cam.AddComponent<Camera>();
@@ -151,24 +358,44 @@ public class MiniMapGenerator : EditorWindow {
         _cam = cam.GetComponent<Camera>();
         cam.transform.Rotate(90, 0, 0);
         cam.transform.position = new Vector3(0, 1500f, 0);
-        cam.name = "Cam";
+        _camerasInScene.Add(cam.GetComponent<Camera>());
+        cam.name = name;
+
+
+        GameObject _imageCont;
+        _imageCont = new GameObject();
+        _imageCont.AddComponent<RectTransform>();
+        _imageCont.AddComponent<CanvasRenderer>();
+        _imageCont.AddComponent<RawImage>();
+        _imageCont.transform.SetParent(canvasMain.transform);
+        _miniMap = _imageCont.GetComponent<RawImage>();
+        _mapsInScene.Add(_miniMap);
+
 
     }
 
 //CONFIGURACION DEL MINI MAP
-   void SetOfMiniMap()
+   void SetOfMiniMap(string name)
     {
-       
-        
-            
+
+
+              GameObject _imageCont;
             _imageCont = new GameObject();
             _imageCont.AddComponent<RectTransform>();
             _imageCont.AddComponent<CanvasRenderer>();
             _imageCont.AddComponent<RawImage>();
             _imageCont.transform.SetParent(canvasMain.transform);
-            _imageCont.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, _widthMap);
-            _imageCont.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, _highMap);
-            _imageCont.name = "miniMap";
-        
+        //_imageCont.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, _widthMap);
+          // _imageCont.GetComponent<RectTransform>().SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, _widthMap);
+           _imageCont.GetComponent<RectTransform>().sizeDelta = new Vector2(_widthMap, _highMap);
+            _imageCont.transform.position = new Vector3(_positionXmap, _positionYmap, _imageCont.transform.position.z);
+        _imageCont.name = name;
+        _miniMap = _imageCont.GetComponent<RawImage>();
+        DestroyImmediate(_mapsInScene[0]);
+        _mapsInScene.RemoveAt(0);
+        _mapsInScene.Insert(_mapsInScene.Count, _miniMap);
+        Debug.Log(_mapsInScene.Count);
+
+
     }
 }
