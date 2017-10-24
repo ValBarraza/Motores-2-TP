@@ -7,6 +7,8 @@ using UnityEngine.UI;
 
 public class ButtonGenerator : EditorWindow
 {
+    private TestEvent _target;
+    public TestEvent data;
 
     public Button buttonObject;
     public Sprite buttonSprite;
@@ -23,7 +25,7 @@ public class ButtonGenerator : EditorWindow
 
     /*public delegate void ClickOn();
     public ClickOn delegate1;*/
-    public GameObject onClick;
+    //public GameObject onClick;
 
 
 
@@ -35,8 +37,8 @@ public class ButtonGenerator : EditorWindow
 
     void OnEnable()
     {
-        /*Button btn = buttonObject.GetComponent<Button>();
-        btn.onClick.AddListener(TheFunction);*/
+        //_target = new TestEvent();
+
         theCanvas = FindObjectOfType<Canvas>();
 
         /*if (buttonObject != null)
@@ -45,7 +47,9 @@ public class ButtonGenerator : EditorWindow
             var.AddListener(TheFunction);
             Debug.Log("add Listener");
         }*/
+
         onButton = false;
+
         Fix();
 
 
@@ -74,18 +78,14 @@ public class ButtonGenerator : EditorWindow
 
         EditorGUILayout.LabelField("3ª The Action you want:", EditorStyles.boldLabel);
         EditorGUILayout.BeginHorizontal();
+        
         //Dentro de la fc On Click!!
         
-        onClick = (GameObject)EditorGUILayout.ObjectField("The Object with the action:", onClick, typeof(GameObject), true);
-        if (onClick != null)
-        {
-            //buscar la funcion dentro del objecto con un popup?
-        }
         EditorGUILayout.EndHorizontal();
 
         //Button.ButtonClickedEvent var = buttonObject.GetComponent<Button>().onClick;
 
-
+        //EditorGUILayout.PropertyField(data.FindProperty("testE"), new GUIContent("Funcáaaaá"));
 
         if (GUILayout.Button("Build"))
         {
@@ -99,6 +99,17 @@ public class ButtonGenerator : EditorWindow
             Button.ButtonClickedEvent var = buttonObject.GetComponent<Button>().onClick;
             var.AddListener(TheFunction);
             Debug.Log("add Listener");
+        }
+
+        if(GUILayout.Button("Event on click scriptek"))
+        {
+            TestEvent asset = CreateInstance<TestEvent>();
+            string assetPathAndName = AssetDatabase.GenerateUniqueAssetPath("Assets/" + typeof(TestEvent).ToString() + ".asset");
+            AssetDatabase.CreateAsset(asset, assetPathAndName);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            EditorUtility.FocusProjectWindow();
+            Selection.activeObject = asset;
         }
 
 
@@ -132,7 +143,7 @@ public class ButtonGenerator : EditorWindow
         txtBNew.GetComponent<Text>().color = textBcolor;
         txtBNew.GetComponent<RectTransform>().position = new Vector3(buttonPos.x, buttonPos.y, buttonPos.z);
         txtBNew.GetComponent<RectTransform>().sizeDelta = new Vector2(buttonSize.x, buttonSize.y);
-        txtBNew.GetComponent<Text>().alignment = TextAnchor.MiddleCenter; // mostrar opcones, capaz?
+        txtBNew.GetComponent<Text>().alignment = TextAnchor.MiddleCenter; // mostrar opciones, capaz?
 
         txtBNew.transform.SetParent(buttonNew.transform);
         Button.ButtonClickedEvent var = buttonNew.GetComponent<Button>().onClick;

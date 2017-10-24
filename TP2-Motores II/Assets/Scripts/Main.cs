@@ -5,11 +5,11 @@ using UnityEngine.UI;
 
 public class Main : MonoBehaviour
 {
+    //public Button.ButtonClickedEvent eventoClick;
 
-    public Button.ButtonClickedEvent eventoClick;
 
-	// Use this for initialization
-	void Start ()
+    // Use this for initialization
+    void Start ()
     {
         
     }
@@ -17,14 +17,14 @@ public class Main : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
     {
-	   if (Input.GetKeyDown(KeyCode.Space))
+	   /*if (Input.GetKeyDown(KeyCode.Space))
         {
             eventoClick.AddListener(Test);
             Debug.Log("add");
 
          
             Debug.Log(eventoClick.GetPersistentEventCount());
-        }	
+        }	*/
 	}
 
     public void Test()
