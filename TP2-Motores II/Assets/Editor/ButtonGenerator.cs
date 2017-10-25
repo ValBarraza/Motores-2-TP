@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class ButtonGenerator : EditorWindow
 {
-    private TestEvent _target;
+    //private TestEvent _target;
     public TestEvent data;
 
     public Button buttonObject;
@@ -21,13 +21,7 @@ public class ButtonGenerator : EditorWindow
     public Color textBcolor;
 
     public Canvas theCanvas;
-    public bool onButton;
-
-    /*public delegate void ClickOn();
-    public ClickOn delegate1;*/
-    //public GameObject onClick;
-
-
+    public bool onButton;//La dejo solo xq Guille lo pidió
 
     [MenuItem("HUD/Buttons Generator")]//BORRAR AL FINAL!!!!
     static void CreateWindow()
@@ -41,18 +35,7 @@ public class ButtonGenerator : EditorWindow
 
         theCanvas = FindObjectOfType<Canvas>();
 
-        /*if (buttonObject != null)
-        {
-            Button.ButtonClickedEvent var = buttonObject.GetComponent<Button>().onClick;
-            var.AddListener(TheFunction);
-            Debug.Log("add Listener");
-        }*/
-
-        onButton = false;
-
         Fix();
-
-
     }
 
 
@@ -60,48 +43,30 @@ public class ButtonGenerator : EditorWindow
     {
         EditorGUILayout.Space();
 
-        EditorGUILayout.LabelField("1ª Image and position", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField("1ª Imagen, tamaño y posición", EditorStyles.boldLabel); //Oraginzar tmb esto!
         //buttonObject = (Button)EditorGUILayout.ObjectField("Button: ", buttonObject, typeof(Button), false);
-        buttonSprite = (Sprite)EditorGUILayout.ObjectField("Sprite: ", buttonSprite, typeof(Sprite), true);
-        buttonPos = EditorGUILayout.Vector3Field("Position: ", buttonPos);
-        buttonSize = EditorGUILayout.Vector2Field("Size: ", buttonSize);
+        buttonSprite = (Sprite)EditorGUILayout.ObjectField("Imagen (Sprite):", buttonSprite, typeof(Sprite), true);
+        buttonPos = EditorGUILayout.Vector3Field("Posición:", buttonPos);
+        buttonSize = EditorGUILayout.Vector2Field("Tamaño:", buttonSize);
 
         EditorGUILayout.Space();
 
-        EditorGUILayout.LabelField("2ª Text", EditorStyles.boldLabel);
-        buttonText = EditorGUILayout.TextField("Text: ", buttonText, GUILayout.Height(50));
-        fontObject = (Font)EditorGUILayout.ObjectField("Font: ", fontObject, typeof(Font), false);
-        fontSize = EditorGUILayout.IntField("Text Size: ", fontSize);
-        textBcolor = EditorGUILayout.ColorField("Text Color: ", textBcolor);
+        EditorGUILayout.LabelField("2ª Texto", EditorStyles.boldLabel);
+        buttonText = EditorGUILayout.TextField("Texto: ", buttonText, GUILayout.Height(50));
+        fontObject = (Font)EditorGUILayout.ObjectField("Fuente: ", fontObject, typeof(Font), false);
+        fontSize = EditorGUILayout.IntField("Tamaño: ", fontSize);
+        textBcolor = EditorGUILayout.ColorField("Color: ", textBcolor);
 
         EditorGUILayout.Space();
 
-        EditorGUILayout.LabelField("3ª The Action you want:", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField("3ª La acción/función que necesites:", EditorStyles.boldLabel);
         EditorGUILayout.BeginHorizontal();
         
         //Dentro de la fc On Click!!
         
         EditorGUILayout.EndHorizontal();
 
-        //Button.ButtonClickedEvent var = buttonObject.GetComponent<Button>().onClick;
-
-        //EditorGUILayout.PropertyField(data.FindProperty("testE"), new GUIContent("Funcáaaaá"));
-
-        if (GUILayout.Button("Build"))
-        {
-            TheButton();
-            onButton = true;
-            
-        }
-
-        if(onButton == true)
-        {
-            Button.ButtonClickedEvent var = buttonObject.GetComponent<Button>().onClick;
-            var.AddListener(TheFunction);
-            Debug.Log("add Listener");
-        }
-
-        if(GUILayout.Button("Event on click scriptek"))
+        if(GUILayout.Button("Crea Tu Acción"))//Organizar mejor todo!
         {
             TestEvent asset = CreateInstance<TestEvent>();
             string assetPathAndName = AssetDatabase.GenerateUniqueAssetPath("Assets/" + typeof(TestEvent).ToString() + ".asset");
@@ -112,6 +77,22 @@ public class ButtonGenerator : EditorWindow
             Selection.activeObject = asset;
         }
 
+        data = (TestEvent)EditorGUILayout.ObjectField("Acción a ejecutar: ", data, typeof(TestEvent), false);
+        if (data != null && buttonObject != null)
+        {
+            buttonObject.onClick = data.eventoClick;
+        }
+
+        EditorGUILayout.Space();
+        EditorGUILayout.Space();
+        EditorGUILayout.Space();
+        EditorGUILayout.Space();
+        EditorGUILayout.Space();
+
+        if (GUILayout.Button("Listo!!! Ahora Construye!"))
+        {
+            TheButton();
+        }
 
     }
 
@@ -146,29 +127,15 @@ public class ButtonGenerator : EditorWindow
         txtBNew.GetComponent<Text>().alignment = TextAnchor.MiddleCenter; // mostrar opciones, capaz?
 
         txtBNew.transform.SetParent(buttonNew.transform);
-        Button.ButtonClickedEvent var = buttonNew.GetComponent<Button>().onClick;
-        var.AddListener(TheFunction);
         
         buttonObject = buttonNew.GetComponent<Button>();
-
-        //buttonNew.GetComponent<Button>().onClick.AddListener(TheFunction);
-        //buttonNew.GetComponent<Button>().onClick.AddListener(() => { TheFunction(); });
-        //buttonNew.GetComponent<Button>().onClick.Invoke();
-       
-    }
-
-
-
-    public void TheFunction()
-    {
-        Debug.Log("Click!!");
-
+    
     }
 
     public void Fix()
     {
         buttonSize = new Vector2(150, 60);
-        buttonText = "New Text";
+        buttonText = "Nuevo Texto";
         fontSize = 14;
         textBcolor = Color.black;
     }
