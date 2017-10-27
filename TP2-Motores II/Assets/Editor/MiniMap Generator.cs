@@ -8,7 +8,9 @@ public class MiniMapGenerator : EditorWindow {
 
     //CANVAS
     private Canvas canvasMain;
+    private Canvas _customCanvas;
     private GameObject _canvas;
+    private string _canvasName;
 
     //CAM
     private Camera _cam;
@@ -42,6 +44,10 @@ public class MiniMapGenerator : EditorWindow {
     //ORGANIZADOR SECCIONES
     private bool _showStep1;
     private bool _showStep2;
+    private bool _showCustomCanvas = false;
+    private bool _searchCanvas = true;
+    private bool _createCanvas = false
+        ;
    
    
 
@@ -55,22 +61,25 @@ public class MiniMapGenerator : EditorWindow {
 
     private void OnEnable()
     {
-        if (canvasMain == null)
+       if(canvasMain == null && !_showCustomCanvas)
         {
             canvasMain = FindObjectOfType<Canvas>();
-
         }
     }
 
     private void OnGUI()
     {
         //GUI.DrawTexture(GUILayoutUtility.GetRect(335, 241), (Texture2D)Resources.Load("advice"));
-   
+
 
 
         Intro();
+        EditorGUILayout.Space();
+        EditorGUILayout.Space();
+        EditorGUILayout.Space();
 
         SetCanvas();
+
         EditorGUILayout.Space();
         EditorGUILayout.Space();
         EditorGUILayout.Space();
@@ -90,6 +99,9 @@ public class MiniMapGenerator : EditorWindow {
 
 
     //SECCIONES
+   
+
+
     void Intro()
     {
         EditorGUILayout.Space();
@@ -330,35 +342,98 @@ public class MiniMapGenerator : EditorWindow {
  //CONFIGURACION DEL CANVAS
     void SetCanvas()
     {
-        if (GUILayout.Button("add canvas", GUILayout.Width(250)) && FindObjectOfType<Canvas>() == null)
+        canvasMain = (Canvas)EditorGUILayout.ObjectField("Canvas actual", canvasMain, typeof(Canvas), false);
+
+        EditorGUILayout.Space();
+        EditorGUILayout.Space();
+
+        EditorGUILayout.BeginHorizontal();
+        _searchCanvas = EditorGUILayout.Toggle("Buscar Canvas", _searchCanvas);
+        _createCanvas = EditorGUILayout.Toggle("Crear Canvas", _createCanvas);
+        _showCustomCanvas = EditorGUILayout.Toggle("Arrastrar Canvas", _showCustomCanvas);
+        
+    
+        EditorGUILayout.EndHorizontal();
+
+        //DARLE UN FIELD AL USUARIO PARA QUE TIRE EL CANVAS QUE QUIERA
+        if (_showCustomCanvas)
         {
-            _canvas = new GameObject();
-            _canvas.AddComponent<RectTransform>();
-            _canvas.AddComponent<Canvas>();
-            _canvas.AddComponent<CanvasScaler>();
-            _canvas.AddComponent<GraphicRaycaster>();
-            _canvas.transform.position = new Vector3(227.5f, 128f, _canvas.transform.position.z);
-            _canvas.GetComponent<RectTransform>().sizeDelta = new Vector2(455, 256);
-            canvasMain = _canvas.AddComponent<Canvas>();
-            _canvas.name = "Main Canvas";
+            _searchCanvas = false;
+            _createCanvas = false;
+            _customCanvas = (Canvas)EditorGUILayout.ObjectField("Canvas principal", _customCanvas, typeof(Canvas), true);
+            canvasMain = _customCanvas;
         }
-        else if (FindObjectOfType<Canvas>() != null)
+
+        //CREAR UN CANVAS
+
+        else if(_createCanvas)
         {
 
-            EditorGUILayout.HelpBox("there's a canvas created", MessageType.Info);
+            _searchCanvas = false;
+            _showCustomCanvas = false;
+            _canvasName = EditorGUILayout.TextField("Nombre Canvas", _canvasName) ;
+            if (GUILayout.Button("Agregar", GUILayout.Width(250)) && FindObjectOfType<Canvas>() == null)
+            {
+                _canvas = new GameObject();
+                _canvas.AddComponent<RectTransform>();
+                _canvas.AddComponent<Canvas>();
+                _canvas.AddComponent<CanvasScaler>();
+                _canvas.AddComponent<GraphicRaycaster>();
+                _canvas.transform.position = new Vector3(227.5f, 128f, _canvas.transform.position.z);
+                _canvas.GetComponent<RectTransform>().sizeDelta = new Vector2(455, 256);
+                _canvas.GetComponent<Canvas>().renderMode = RenderMode.ScreenSpaceOverlay;
+                canvasMain = _canvas.GetComponent<Canvas>();
+                _canvas.name = _canvasName;
+            }
+            else if (FindObjectOfType<Canvas>() != null)
+            {
+                
+                EditorGUILayout.HelpBox("Ya hay un Canvas creado con el nombre:  " + FindObjectOfType<Canvas>().name, MessageType.Info);
+            }
         }
+
+
+        //BUSCAR CANVAS EN LA ESCENA
+        else if (_searchCanvas)
+        {
+        
+            _showCustomCanvas = false;
+            _createCanvas = false;
+            if (canvasMain == null)
+            {
+                  
+                canvasMain = FindObjectOfType<Canvas>();
+                if (FindObjectOfType<Canvas>() == null)
+                {
+                    EditorGUILayout.HelpBox("No se encontró ningun Canvas Creado en la jerarquia", MessageType.Error);
+                }
+
+
+            }
+            else  
+            {
+                EditorGUILayout.HelpBox("Hay un Canvas en CANVAS ACTUAL" , MessageType.Error);
+            }
+
+
+        }
+       
     }
+ 
 
- //CONFIGURACION DE LA CAM
-   void SetOfCam(string name)
+    //CONFIGURACION DE LA CAM
+    void SetOfCam(string name)
     {
         cam = new GameObject();
         cam.AddComponent<Camera>();
+        
         // cam.transform.SetParent(canvasMain.transform);
         _cam = cam.GetComponent<Camera>();
         cam.transform.Rotate(90, 0, 0);
         cam.transform.position = new Vector3(0, 1500f, 0);
         _camerasInScene.Add(cam.GetComponent<Camera>());
+        cam.GetComponent<Camera>().cullingMask = 1;
+        
         cam.name = name;
 
 
@@ -391,7 +466,7 @@ public class MiniMapGenerator : EditorWindow {
             _imageCont.transform.position = new Vector3(_positionXmap, _positionYmap, _imageCont.transform.position.z);
         _imageCont.name = name;
         _miniMap = _imageCont.GetComponent<RawImage>();
-        DestroyImmediate(_mapsInScene[0]);
+        DestroyImmediate(_mapsInScene[0].gameObject);
         _mapsInScene.RemoveAt(0);
         _mapsInScene.Insert(_mapsInScene.Count, _miniMap);
         Debug.Log(_mapsInScene.Count);
