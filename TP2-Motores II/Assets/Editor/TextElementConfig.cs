@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using UnityEngine.UI;
-
+//Configuración del elemento
 public class TextElementConfig : EditorWindow {
 
     private GameObject _element;
