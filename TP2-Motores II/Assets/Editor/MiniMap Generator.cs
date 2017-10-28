@@ -14,13 +14,18 @@ public class MiniMapGenerator : EditorWindow {
 
     //CAM
     private Camera _cam;
-    private GameObject cam;
     private int _highCam;
     private float fow;
     private string _nameCam;
     private GameObject _targetToFollow;
     private List<Camera> _camerasInScene = new List<Camera>();
-    
+
+    //SELECT CAM
+    private Camera _SelectCam;
+    private int _SelecthighCam;
+    private float _Selectfow;
+    private string _SelectnameCam;
+    private GameObject _SelecttargetToFollow;
 
 
 
@@ -46,18 +51,22 @@ public class MiniMapGenerator : EditorWindow {
     private bool _showStep2;
     private bool _showCustomCanvas = false;
     private bool _searchCanvas = true;
-    private bool _createCanvas = false
-        ;
+    private bool _createCanvas = false;
+
+    private Texture2D trest;
+    private TextureImporter trestas;
    
    
+   
 
 
 
-    [MenuItem("HUD/miniMap")]
-    static void OpenWindow()
+    [MenuItem("HUD/MiniMap Generator")]
+    public static void OpenWindow()
     {
         GetWindow<MiniMapGenerator>();
     }
+   
 
     private void OnEnable()
     {
@@ -70,6 +79,16 @@ public class MiniMapGenerator : EditorWindow {
     private void OnGUI()
     {
         //GUI.DrawTexture(GUILayoutUtility.GetRect(335, 241), (Texture2D)Resources.Load("advice"));
+        //TextureImporterType.Sprite;
+        // trest.tex
+       
+        trestas = (TextureImporter)EditorGUILayout.ObjectField("imagen", trestas, typeof(TextureImporter), true);
+        if (trestas != null)
+        trestas.textureType = TextureImporterType.Sprite;
+
+
+
+
 
 
 
@@ -168,7 +187,11 @@ public class MiniMapGenerator : EditorWindow {
             {
                 SetOfCam(_nameCam);
                 if (_targetToFollow != null)
+                {
                     _cam.transform.SetParent(_targetToFollow.transform);
+                    _targetToFollow.layer = LayerMask.NameToLayer("Minimap");
+                }
+                    
                     
 
             }
@@ -186,7 +209,7 @@ public class MiniMapGenerator : EditorWindow {
                 fow = 1f;
             }
 
-            _cam.transform.position = new Vector3(0, _highCam, 0);
+            _cam.transform.position = new Vector3(_targetToFollow.transform.position.x, _highCam, _targetToFollow.transform.position.z);
         }
         EditorGUILayout.Space();
         EditorGUILayout.Space();
@@ -249,10 +272,26 @@ public class MiniMapGenerator : EditorWindow {
     void SetOfCamerasCreated()
     {
         EditorGUILayout.LabelField("Cameras created", EditorStyles.boldLabel);
-        _cam = (Camera)EditorGUILayout.ObjectField("Current Camera", _cam, typeof(Camera), true);
+        _SelectCam = (Camera)EditorGUILayout.ObjectField("Current Camera", _SelectCam, typeof(Camera), true);
         _miniMap = (RawImage)EditorGUILayout.ObjectField("Its MiniMap", _miniMap, typeof(RawImage), true);
-
+        
+  
         EditorGUILayout.Space();
+
+        _SelecthighCam = EditorGUILayout.IntField("altura Camara", _SelecthighCam );
+        _SelectnameCam = EditorGUILayout.TextField("nombre Camara ", _SelectnameCam);
+        _SelecttargetToFollow = (GameObject)EditorGUILayout.ObjectField("Target de la Camara", _SelecttargetToFollow, typeof(GameObject), true);
+        _Selectfow = EditorGUILayout.FloatField("Rango de Vision", _Selectfow);
+
+        if (_SelectCam != null)
+        {
+            _SelectnameCam = _SelectCam.name;
+            _SelecthighCam = (int)_SelectCam.transform.position.y;
+            _Selectfow = _SelectCam.fieldOfView;
+            //_SelecttargetToFollow = _SelectCam.GetComponentInParent<GameObject>();
+        }
+        
+
 
         EditorGUILayout.LabelField("Cameras in scene: ", EditorStyles.miniBoldLabel);
         for (int i = 0; i < _camerasInScene.Count; i++)
@@ -263,7 +302,8 @@ public class MiniMapGenerator : EditorWindow {
 
             if (GUILayout.Button("select"))
             {
-                _cam = _camerasInScene[i];
+                _SelectCam = _camerasInScene[i];
+      
                 _miniMap = _mapsInScene[i];
             }
                
@@ -272,9 +312,10 @@ public class MiniMapGenerator : EditorWindow {
             {
                 DestroyImmediate(_camerasInScene[i].gameObject);
                 DestroyImmediate(_mapsInScene[i].gameObject);
+                AssetDatabase.DeleteAsset("Assets/Images/" + _texturesInScene[i].name + ".renderTexture");
                 _camerasInScene.RemoveAt(i);
-
-                if(_mapsInScene[i] != null)
+                _texturesInScene.RemoveAt(i);
+                if (_mapsInScene[i] != null)
                 _mapsInScene.RemoveAt(i);
             }
                 
@@ -314,7 +355,7 @@ public class MiniMapGenerator : EditorWindow {
                 _RTexture = renderTexturecustom;
                 _texturesInScene.Add(_RTexture);
                 _miniMap.GetComponent<RawImage>().texture = renderTexturecustom;
-                cam.GetComponent<Camera>().targetTexture = renderTexturecustom;
+                _cam.GetComponent<Camera>().targetTexture = renderTexturecustom;
             }
            
         }
@@ -424,6 +465,7 @@ public class MiniMapGenerator : EditorWindow {
     //CONFIGURACION DE LA CAM
     void SetOfCam(string name)
     {
+        GameObject cam;
         cam = new GameObject();
         cam.AddComponent<Camera>();
         
@@ -432,7 +474,8 @@ public class MiniMapGenerator : EditorWindow {
         cam.transform.Rotate(90, 0, 0);
         cam.transform.position = new Vector3(0, 1500f, 0);
         _camerasInScene.Add(cam.GetComponent<Camera>());
-        cam.GetComponent<Camera>().cullingMask = 1;
+        cam.GetComponent<Camera>().cullingMask = 1 << LayerMask.NameToLayer("Minimap");
+       // Debug.Log(LayerMask.NameToLayer("Minimap"));
         
         cam.name = name;
 
@@ -466,10 +509,15 @@ public class MiniMapGenerator : EditorWindow {
             _imageCont.transform.position = new Vector3(_positionXmap, _positionYmap, _imageCont.transform.position.z);
         _imageCont.name = name;
         _miniMap = _imageCont.GetComponent<RawImage>();
-        DestroyImmediate(_mapsInScene[0].gameObject);
-        _mapsInScene.RemoveAt(0);
-        _mapsInScene.Insert(_mapsInScene.Count, _miniMap);
-        Debug.Log(_mapsInScene.Count);
+        DestroyImmediate(_mapsInScene[_mapsInScene.Count - 1].gameObject);
+        // _mapsInScene.RemoveAt(0);
+        // _mapsInScene.Insert(0, _miniMap);
+        _mapsInScene[_mapsInScene.Count - 1] = _imageCont.GetComponent<RawImage>();
+        for (int i = 0; i < _mapsInScene.Count; i++)
+        {
+            Debug.Log(_mapsInScene[i].name +""+""+ i);
+        }
+        
 
 
     }

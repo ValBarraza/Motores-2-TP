@@ -133,7 +133,9 @@
     <Compile Include="Assets\Editor\HUDGenerator.cs" />
     <Compile Include="Assets\Editor\HUDHelper.cs" />
     <Compile Include="Assets\Editor\MiniMap Generator.cs" />
+    <Compile Include="Assets\Editor\TextElementConfig.cs" />
     <Compile Include="Assets\Editor\TextGenerator.cs" />
+    <Compile Include="Assets\Editor\TextoElementConfig.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />

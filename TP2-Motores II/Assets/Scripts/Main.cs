@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class Main : MonoBehaviour
 {
     //public Button.ButtonClickedEvent eventoClick;
-
+    
 
     // Use this for initialization
     void Start ()
