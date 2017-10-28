@@ -6,12 +6,12 @@ using UnityEngine.Events;
 using UnityEngine.UI;
 
 [Serializable]
-public class TestEvent : ScriptableObject //Se lo robé a unity
+public class TestEvent : ScriptableObject 
 {
-    public UnityEvent testE;
+    //public UnityEvent testE;
     public Button.ButtonClickedEvent eventoClick;
 
-    void Start()
+    /*void Start()
     {
         if (testE == null)
             testE = new UnityEvent();
@@ -30,6 +30,6 @@ public class TestEvent : ScriptableObject //Se lo robé a unity
     void ShowAction()
     {
         Debug.Log("Click!!!!!");
-    }
+    }*/
 }
 
