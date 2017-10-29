@@ -10,14 +10,27 @@ using UnityEngine.UI;
 
 public class TextGenerator : EditorWindow
 {
+    #region CanvasFields
+    private GameObject _canvas;
+    private Canvas canvasMain;
+    private Canvas _customCanvas;
+
+    private string _canvasName;
+
+    bool _searchCanvas;
+    bool _createCanvas;
+    bool _showCustomCanvas;
+    #endregion
+
     private List<GameObject> _textList;
     private GameObject _textElement;
+    private TextElementConfig _classElement;
 
     private Text _textToGenerateStatic;
     //Personalización
     private Color _color;
     private Vector2 _ofMax;
-    private Vector2 _ofMin;
+    private Vector2 _ofMin = new Vector2(-120,-120);
     private Vector2 _pivotePos;
     private Font _font;
     private Sprite _representationImage;
@@ -34,40 +47,110 @@ public class TextGenerator : EditorWindow
     private int _objectsCount;
     private Text _dinamicText;
 
-    Canvas _canvas;
+    //Canvas _canvas;
 
     [MenuItem("HUD/Text Generator")]
     public static void CreateWindow()
     {
         GetWindow<TextGenerator>();
-        
     }
 
     private void OnEnable()
     {
         _textList = new List<GameObject>();
-        if(_canvas == null)
-        _canvas = FindObjectOfType<Canvas>();
     }
 
     void OnGUI()
     {
+        
         Repaint();
-        ButtonConfig();
+
+        if(canvasMain == null) SetCanvas();
         StaticText();
         DinamicText();
-        ShowList();
+        if(canvasMain != null) ShowList();
+    }
+    void SetCanvas()
+    {
+        canvasMain = (Canvas)EditorGUILayout.ObjectField("Canvas actual", canvasMain, typeof(Canvas), false);
 
-        if(GUILayout.Button("ABRIR OTRA VENTANITA"))
+        EditorGUILayout.Space();
+        EditorGUILayout.Space();
+
+        EditorGUILayout.BeginHorizontal();
+        _searchCanvas = EditorGUILayout.Toggle("Buscar Canvas", _searchCanvas);
+        _createCanvas = EditorGUILayout.Toggle("Crear Canvas", _createCanvas);
+        _showCustomCanvas = EditorGUILayout.Toggle("Arrastrar Canvas", _showCustomCanvas);
+
+
+        EditorGUILayout.EndHorizontal();
+
+        //DARLE UN FIELD AL USUARIO PARA QUE TIRE EL CANVAS QUE QUIERA
+        if (_showCustomCanvas)
         {
-            //TextoElementConfig.CreateWindow();
-            // MiniMapGenerator.OpenWindow();
-            TextElementConfig.CreatedWindow();
+            _searchCanvas = false;
+            _createCanvas = false;
+            _customCanvas = (Canvas)EditorGUILayout.ObjectField("Canvas principal", _customCanvas, typeof(Canvas), true);
+            canvasMain = _customCanvas;
+        }
+
+        //CREAR UN CANVAS
+
+        else if (_createCanvas)
+        {
+
+            _searchCanvas = false;
+            _showCustomCanvas = false;
+            _canvasName = EditorGUILayout.TextField("Nombre Canvas", _canvasName);
+            if (GUILayout.Button("Agregar", GUILayout.Width(250)) && FindObjectOfType<Canvas>() == null)
+            {
+                _canvas = new GameObject();
+                _canvas.AddComponent<RectTransform>();
+                _canvas.AddComponent<Canvas>();
+                _canvas.AddComponent<CanvasScaler>();
+                _canvas.AddComponent<GraphicRaycaster>();
+                _canvas.transform.position = new Vector3(227.5f, 128f, _canvas.transform.position.z);
+                _canvas.GetComponent<RectTransform>().sizeDelta = new Vector2(455, 256);
+                _canvas.GetComponent<Canvas>().renderMode = RenderMode.ScreenSpaceOverlay;
+                canvasMain = _canvas.GetComponent<Canvas>();
+                _canvas.name = _canvasName;
+            }
+            else if (FindObjectOfType<Canvas>() != null)
+            {
+
+                EditorGUILayout.HelpBox("Ya hay un Canvas creado con el nombre:  " + FindObjectOfType<Canvas>().name, MessageType.Info);
+            }
+        }
+
+
+        //BUSCAR CANVAS EN LA ESCENA
+        else if (_searchCanvas)
+        {
+
+            _showCustomCanvas = false;
+            _createCanvas = false;
+            if (canvasMain == null)
+            {
+
+                canvasMain = FindObjectOfType<Canvas>();
+                if (FindObjectOfType<Canvas>() == null)
+                {
+                    EditorGUILayout.HelpBox("No se encontró ningun Canvas Creado en la jerarquia", MessageType.Error);
+                }
+
+
+            }
+            else
+            {
+                EditorGUILayout.HelpBox("Hay un Canvas en CANVAS ACTUAL", MessageType.Error);
+            }
+
+
         }
 
     }
-    #region Static
 
+    #region Static
     void StaticText() {
         EditorGUILayout.LabelField("Textos Estáticos", EditorStyles.boldLabel);
         EditorGUILayout.LabelField("1º Fuente, tamaño, texto", EditorStyles.boldLabel);
@@ -110,6 +193,8 @@ public class TextGenerator : EditorWindow
             }
         }
     }
+    #region Personalization
+
     void SetColor() {
         _color = EditorGUILayout.ColorField("Color de texto", _color);
     }
@@ -125,24 +210,20 @@ public class TextGenerator : EditorWindow
     void StaticPersonalization() {
         _representationImage = (Sprite)EditorGUILayout.ObjectField("Representación", _representationImage, typeof(Sprite), true);
         _background = (Sprite)EditorGUILayout.ObjectField("Background de texto", _background, typeof(Sprite), true);
-        //Marco
     }
+
+    #endregion
     void GenerateStaticText() {
-        //Creo un GameObjetc en la escena
         _textElement = new GameObject();
 
-        //Le agrego los componentes de TEXT
         _textElement.AddComponent<RectTransform>();
         _textElement.AddComponent<CanvasRenderer>();
         _textElement.AddComponent<Text>();
 
-        //AddToList(_textObjetc);
-
-        //Le seteo el padre
-        _textElement.transform.SetParent(_canvas.transform);
+        _textElement.transform.SetParent(canvasMain.transform);
 
         _textToGenerateStatic = _textElement.GetComponent<Text>();
-       // _textToGenerateStatic.color = _color;
+
         _textToGenerateStatic.font = _font;
         _textToGenerateStatic.text = _text;
         _textToGenerateStatic.fontSize = _fontSize;
@@ -152,31 +233,29 @@ public class TextGenerator : EditorWindow
         pos.offsetMax = _ofMax;
         pos.offsetMin = _ofMin;
         pos.anchoredPosition = _pivotePos;
-
-        //_textList.Add(_textElement);
     }
     #region ListMethods
     void ShowList() {
-
         EditorGUILayout.LabelField("Lista", EditorStyles.boldLabel);
+
         _showList = EditorGUILayout.Foldout(_showList, "Mostrar lista");
         if (_showList)
         {
             EditorGUILayout.BeginVertical();
-            foreach (RectTransform item in _canvas.GetComponentInChildren<RectTransform>())
+            foreach (RectTransform item in canvasMain.GetComponentInChildren<RectTransform>())
             {
                 string name = item.name;
                 EditorGUILayout.ObjectField(name, item, typeof(RectTransform), false);
 
                 var txt = item.GetComponent<Text>();
-                if(txt != null) {
+                if (txt != null)
+                {
                     _textList.Add(item.gameObject);
 
                     ButtonEliminate(item.gameObject);
-                    ButtonConfig();                
-                }              
+                    ButtonConfig(item.gameObject);
+                }
             }
-            //EditorGUILayout.EndVertical();
         }
     }
     void ButtonEliminate(GameObject element) {
@@ -185,12 +264,12 @@ public class TextGenerator : EditorWindow
             element.SetActive(!element.activeSelf);
         }
     }
-    void ButtonConfig() {
-        Rect rectOpenNew = EditorGUILayout.BeginHorizontal("Button");
-        if (GUI.Button(rectOpenNew, GUIContent.none))
-            TextGenerator.CreateWindow();
-        GUILayout.Label("Abrir la otra ventana");
-        EditorGUILayout.EndHorizontal();
+    void ButtonConfig(GameObject e) {
+        if(GUILayout.Button("Abrir configuración")) {
+            TextElementConfig.CreatedWindow();
+            var _classConfig = (TextElementConfig)GetWindow(typeof(TextElementConfig));
+            _classConfig.TextElementConfigMethod(e);
+        }
     }
     #endregion
 
