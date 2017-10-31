@@ -19,15 +19,14 @@ public class TextElementConfig : EditorWindow {
     public static void CreatedWindow() {
         GetWindow<TextElementConfig>();
     }
-    private void OnEnable()
-    {
-        Debug.Log("Inicio");
-        if(_element != null) GetFieldsOfElement();
 
-    }
     private void OnGUI()
     {
+        Debug.Log(_element);
+        if (_element != null) if (GUILayout.Button("Actualizar")) GetFieldsOfElement();
+
         Fields();
+
         if (GUILayout.Button("Realizar Cambios")) MakeChanges();
     }
     void Fields()

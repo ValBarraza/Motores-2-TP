@@ -251,7 +251,7 @@ public class TextGenerator : EditorWindow
                 if (txt != null)
                 {
                     _textList.Add(item.gameObject);
-
+                    
                     ButtonEliminate(item.gameObject);
                     ButtonConfig(item.gameObject);
                 }
@@ -260,8 +260,8 @@ public class TextGenerator : EditorWindow
     }
     void ButtonEliminate(GameObject element) {
         if (GUILayout.Button("Eliminar")) {
-            //_textList.Remove(element);         //COMO DESTRUIR EL ELEMENTO?
-            element.SetActive(!element.activeSelf);
+            _textList.Remove(element);
+            DestroyImmediate(element);
         }
     }
     void ButtonConfig(GameObject e) {
