@@ -6,6 +6,9 @@ using UnityEngine.UI;
 
 public class MiniMapGenerator : EditorWindow {
 
+
+    Vector2 scrollBarPosition;
+
     //CANVAS
     private Canvas canvasMain;
     private Canvas _customCanvas;
@@ -26,6 +29,7 @@ public class MiniMapGenerator : EditorWindow {
     private float _Selectfow;
     private string _SelectnameCam;
     private GameObject _SelecttargetToFollow;
+    private bool _assignValuesToCam;
 
 
 
@@ -45,6 +49,15 @@ public class MiniMapGenerator : EditorWindow {
     private string _nameMap;
     private List<RawImage> _mapsInScene = new List<RawImage>();
 
+    //SELECT MINI MAP
+    private RawImage _SelectminiMap;
+    private string _selectNametMiniMap;
+    private int _selectHighMap;
+    private int _selectWidthMap;
+    private float _selectPositionXmap;
+    private float _selectPositionYmap;
+    private string _selectNameMap;
+
 
     //ORGANIZADOR SECCIONES
     private bool _showStep1;
@@ -52,6 +65,7 @@ public class MiniMapGenerator : EditorWindow {
     private bool _showCustomCanvas = false;
     private bool _searchCanvas = true;
     private bool _createCanvas = false;
+
 
     private Texture2D trest;
     private TextureImporter trestas;
@@ -81,13 +95,11 @@ public class MiniMapGenerator : EditorWindow {
         //GUI.DrawTexture(GUILayoutUtility.GetRect(335, 241), (Texture2D)Resources.Load("advice"));
         //TextureImporterType.Sprite;
         // trest.tex
-       
-        trestas = (TextureImporter)EditorGUILayout.ObjectField("imagen", trestas, typeof(TextureImporter), true);
-        if (trestas != null)
-        trestas.textureType = TextureImporterType.Sprite;
 
 
 
+
+        scrollBarPosition = EditorGUILayout.BeginScrollView(scrollBarPosition);
 
 
 
@@ -113,6 +125,7 @@ public class MiniMapGenerator : EditorWindow {
 
 
         SetOfCamerasCreated();
+        EditorGUILayout.EndScrollView();
 
     }
 
@@ -127,9 +140,9 @@ public class MiniMapGenerator : EditorWindow {
         EditorGUILayout.Space();
         EditorGUILayout.BeginHorizontal();
         GUI.DrawTexture(GUILayoutUtility.GetRect(75, 200), (Texture2D)Resources.Load("minimap"));
-        EditorGUILayout.LabelField("Welcome to the MINI MAP GENERATOR", EditorStyles.centeredGreyMiniLabel);
+        EditorGUILayout.LabelField("Bienvenido al generador de MiniMapas", EditorStyles.centeredGreyMiniLabel);
         EditorGUILayout.EndHorizontal();
-        EditorGUILayout.LabelField("here you will create a basic minimap with a few simple steps");
+        EditorGUILayout.LabelField("Aqui podras generar un simple MiniMapa en pocos pasos");
         EditorGUILayout.Space();
         EditorGUILayout.Space();
         EditorGUILayout.Space();
@@ -137,32 +150,32 @@ public class MiniMapGenerator : EditorWindow {
     void Step1()
     {
 
-        EditorGUILayout.LabelField("1° step: Create a Camera", EditorStyles.boldLabel);
-        _showStep1 = EditorGUILayout.Foldout(_showStep1, "Camera Creator");
+        EditorGUILayout.LabelField("1° PASO: Crea una camara", EditorStyles.boldLabel);
+        _showStep1 = EditorGUILayout.Foldout(_showStep1, "CREADOR DE CAMARA");
         if (_showStep1)
         {
             //NOMBRE
             EditorGUILayout.BeginHorizontal();
-            _nameCam = EditorGUILayout.TextField("name Camera ", _nameCam, GUILayout.Width(400));
+            _nameCam = EditorGUILayout.TextField("Nombre de la Camara", _nameCam, GUILayout.Width(400));
             EditorGUILayout.EndHorizontal();
 
             //ALTURA
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("✦ set a high for the minimap's Camera: ", GUILayout.Width(300f));
+            EditorGUILayout.LabelField("✦ Asigna una altura a la Camara: ", GUILayout.Width(300f));
             _highCam = EditorGUILayout.IntField(_highCam, GUILayout.Width(50f));
             EditorGUILayout.EndHorizontal();
             if (_highCam <= 0)
-                EditorGUILayout.HelpBox("the high is 0", MessageType.Warning);
+                EditorGUILayout.HelpBox("CUIDADO! La altura es CERO", MessageType.Warning);
 
             //VISTA
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("✦ set camera's range view: ", GUILayout.Width(300f));
+            EditorGUILayout.LabelField("✦ Asigna un rango de vision: ", GUILayout.Width(300f));
             fow = EditorGUILayout.FloatField(fow, GUILayout.Width(50f));
             EditorGUILayout.EndHorizontal();
 
             //TARGET
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("✦ set a target to follow ", GUILayout.Width(300f));
+            EditorGUILayout.LabelField("✦ Asigna un target ", GUILayout.Width(300f));
             _targetToFollow = (GameObject)EditorGUILayout.ObjectField(_targetToFollow, typeof(GameObject), true);
             EditorGUILayout.EndHorizontal();
 
@@ -177,13 +190,13 @@ public class MiniMapGenerator : EditorWindow {
             if (fow <= 0)
             {
                 fow = 0;
-                EditorGUILayout.HelpBox("the range of view can be 0 or less", MessageType.Error);
+                EditorGUILayout.HelpBox("El Rango de Vision no puede ser cero o menos", MessageType.Error);
             }
 
 
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("✦ push the button for add a Camera-follow to target", GUILayout.Width(300f));
-            if (GUILayout.Button("Add Camera",GUILayout.Width(250)))
+            EditorGUILayout.LabelField("✦ Presiona el boton para agregar la camara al target", GUILayout.Width(300f));
+            if (GUILayout.Button("Agregar Camara",GUILayout.Width(250)))
             {
                 SetOfCam(_nameCam);
                 if (_targetToFollow != null)
@@ -191,68 +204,68 @@ public class MiniMapGenerator : EditorWindow {
                     _cam.transform.SetParent(_targetToFollow.transform);
                     _targetToFollow.layer = LayerMask.NameToLayer("Minimap");
                 }
-                    
-                    
+
+                if (_cam != null)
+                {
+                    if (fow > 0)
+                    {
+                        _cam.GetComponent<Camera>().fieldOfView = fow;
+                    }
+                    else
+                    {
+                        fow = 1f;
+                    }
+
+                    _cam.transform.position = new Vector3(_targetToFollow.transform.position.x, _highCam, _targetToFollow.transform.position.z);
+                }
 
             }
             EditorGUILayout.EndHorizontal();
         }
 
-        if (_cam != null)
-        {
-            if (fow > 0)
-            {
-                _cam.GetComponent<Camera>().fieldOfView = fow;
-            }
-            else
-            {
-                fow = 1f;
-            }
-
-            _cam.transform.position = new Vector3(_targetToFollow.transform.position.x, _highCam, _targetToFollow.transform.position.z);
-        }
+      
         EditorGUILayout.Space();
         EditorGUILayout.Space();
         EditorGUILayout.Space();
     }
     void Step2()
     {
-        EditorGUILayout.LabelField("2° step: MiniMap (image)", EditorStyles.boldLabel);
-        _showStep2 = EditorGUILayout.Foldout(_showStep2, "Camera Creator");
+        EditorGUILayout.LabelField("2° PASO: agregando MiniMapa", EditorStyles.boldLabel);
+        _showStep2 = EditorGUILayout.Foldout(_showStep2, "CREADOR MINIMAPA ");
         if (_showStep2)
         {
             EditorGUILayout.BeginHorizontal();
-            _nameMap = EditorGUILayout.TextField("✦ name Minimap ", _nameMap, GUILayout.Width(400));
+            _nameMap = EditorGUILayout.TextField("✦ Nombre MiniMapa ", _nameMap, GUILayout.Width(400));
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("✦ Size of map ", GUILayout.Width(100));
-            EditorGUILayout.LabelField(" high: ", EditorStyles.miniBoldLabel, GUILayout.Width(30));
+            EditorGUILayout.LabelField("✦ Tamaño del MiniMapa ", GUILayout.Width(100));
+            EditorGUILayout.LabelField(" Altura: ", EditorStyles.miniBoldLabel, GUILayout.Width(30));
             _highMap = EditorGUILayout.IntField(_highMap, GUILayout.Width(50));
 
-            EditorGUILayout.LabelField(" width: ", EditorStyles.miniBoldLabel, GUILayout.Width(35));
+            EditorGUILayout.LabelField(" Ancho: ", EditorStyles.miniBoldLabel, GUILayout.Width(35));
             _widthMap = EditorGUILayout.IntField(_widthMap, GUILayout.Width(50));
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("✦ position of map ", GUILayout.Width(100));
-            EditorGUILayout.LabelField(" position X: ", EditorStyles.miniBoldLabel, GUILayout.Width(60));
+            EditorGUILayout.LabelField("✦ Posicion del MiniMapa ", GUILayout.Width(100));
+            EditorGUILayout.LabelField(" Pos en X: ", EditorStyles.miniBoldLabel, GUILayout.Width(60));
             _positionXmap = EditorGUILayout.FloatField(_positionXmap, GUILayout.Width(50));
 
-            EditorGUILayout.LabelField(" position Y: ", EditorStyles.miniBoldLabel, GUILayout.Width(60));
+            EditorGUILayout.LabelField(" Pos en Y: ", EditorStyles.miniBoldLabel, GUILayout.Width(60));
             _positionYmap = EditorGUILayout.FloatField(_positionYmap, GUILayout.Width(50));
             EditorGUILayout.EndHorizontal();
 
 
             if (_highMap <= 0 || _widthMap <= 0)
             {
-                EditorGUILayout.HelpBox("sizes of the map render can't be 0", MessageType.Error);
+                EditorGUILayout.HelpBox("¡Los tamaños del mapa no pueden ser CERO o menor!", MessageType.Error);
             }
 
-            _changeSideRTexture = EditorGUILayout.Toggle("custom side texture Render", _changeSideRTexture);
+            _changeSideRTexture = EditorGUILayout.Toggle("AVANZADO: customizar tamaño del Texture Render", _changeSideRTexture);
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("✦ push the button for add a MiniMap to Canvas", GUILayout.Width(300f));
-            if (GUILayout.Button("Add MiniMap", GUILayout.Width(250)))
+            EditorGUILayout.LabelField("✦ Presiona el boton para agregar un MiniMapa", GUILayout.Width(300f));
+            if (GUILayout.Button("Agregar MiniMapa", GUILayout.Width(250)))
             {
 
                 SetOfMiniMap(_nameMap);
@@ -271,51 +284,125 @@ public class MiniMapGenerator : EditorWindow {
     //RECONFIGURACION
     void SetOfCamerasCreated()
     {
-        EditorGUILayout.LabelField("Cameras created", EditorStyles.boldLabel);
-        _SelectCam = (Camera)EditorGUILayout.ObjectField("Current Camera", _SelectCam, typeof(Camera), true);
-        _miniMap = (RawImage)EditorGUILayout.ObjectField("Its MiniMap", _miniMap, typeof(RawImage), true);
+        EditorGUILayout.LabelField("Seleccion de camara", EditorStyles.boldLabel);
+        _SelectCam = (Camera)EditorGUILayout.ObjectField("Camara selecionada", _SelectCam, typeof(Camera), false);
+        _SelectminiMap = (RawImage)EditorGUILayout.ObjectField("Mapa correspondiente", _SelectminiMap, typeof(RawImage), false);
         
   
         EditorGUILayout.Space();
 
-        _SelecthighCam = EditorGUILayout.IntField("altura Camara", _SelecthighCam );
         _SelectnameCam = EditorGUILayout.TextField("nombre Camara ", _SelectnameCam);
-        _SelecttargetToFollow = (GameObject)EditorGUILayout.ObjectField("Target de la Camara", _SelecttargetToFollow, typeof(GameObject), true);
+        _SelecthighCam = EditorGUILayout.IntField("altura Camara", _SelecthighCam );  
         _Selectfow = EditorGUILayout.FloatField("Rango de Vision", _Selectfow);
+        _SelecttargetToFollow = (GameObject)EditorGUILayout.ObjectField("Target de la Camara", _SelecttargetToFollow, typeof(GameObject), true);
 
-        if (_SelectCam != null)
+        EditorGUILayout.Space();
+
+        _selectNametMiniMap = EditorGUILayout.TextField("nombre MiniMapa ", _selectNametMiniMap);
+        EditorGUILayout.BeginHorizontal();
+        
+        EditorGUILayout.LabelField("Posicion del MiniMapa", GUILayout.Width(100));
+        EditorGUILayout.LabelField("Posicion en X:", EditorStyles.miniBoldLabel, GUILayout.Width(60));
+        _selectPositionXmap = EditorGUILayout.FloatField(_selectPositionXmap, GUILayout.Width(50));
+
+        EditorGUILayout.LabelField("Posicion en Y:", EditorStyles.miniBoldLabel, GUILayout.Width(60));
+        _selectPositionYmap = EditorGUILayout.FloatField(_selectPositionYmap, GUILayout.Width(50));
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField("Tamaño del mapa ", GUILayout.Width(100));
+        EditorGUILayout.LabelField(" Alto: ", EditorStyles.miniBoldLabel, GUILayout.Width(30));
+        _selectHighMap = EditorGUILayout.IntField(_selectHighMap, GUILayout.Width(50));
+
+        EditorGUILayout.LabelField(" Ancho: ", EditorStyles.miniBoldLabel, GUILayout.Width(35));
+        _selectWidthMap = EditorGUILayout.IntField(_selectWidthMap, GUILayout.Width(50));
+        EditorGUILayout.EndHorizontal();
+
+        if (_assignValuesToCam && _SelectCam != null)
+        {
+            _SelectCam.name = _SelectnameCam;
+            _SelectCam.transform.position = new Vector3(_SelecttargetToFollow.transform.position.x, _SelecthighCam, _SelecttargetToFollow.transform.position.z);
+            _SelectCam.fieldOfView =_Selectfow;
+            _SelectminiMap.transform.position = new Vector3(_selectPositionXmap, _selectPositionYmap, _SelectminiMap.transform.position.z);
+            _SelectminiMap.GetComponent<RectTransform>().sizeDelta = new Vector2(_selectWidthMap, _selectHighMap);
+            _SelectminiMap.name = _selectNametMiniMap;
+            _SelectCam.transform.SetParent(_SelecttargetToFollow.transform);
+           
+
+        }
+
+        if (_SelectCam != null && !_assignValuesToCam)
         {
             _SelectnameCam = _SelectCam.name;
+            //_SelectCam.name =_SelectnameCam;
             _SelecthighCam = (int)_SelectCam.transform.position.y;
-            _Selectfow = _SelectCam.fieldOfView;
-            //_SelecttargetToFollow = _SelectCam.GetComponentInParent<GameObject>();
+      
+            _SelecttargetToFollow = _SelectCam.transform.parent.gameObject;
+            //_SelecthighCam = (int)_SelectCam.transform.position.y;
+
+            if (_Selectfow > 0)
+                _Selectfow = _SelectCam.fieldOfView;
+            else
+            {
+                _Selectfow = 1;
+            }
+
+
+
+            if (_SelectminiMap != null)
+            {
+                _selectPositionXmap = _SelectminiMap.transform.position.x;
+                _selectPositionYmap = _SelectminiMap.transform.position.y;
+                _selectHighMap = (int)_SelectminiMap.GetComponent<RectTransform>().sizeDelta.y;
+                _selectWidthMap = (int)_SelectminiMap.GetComponent<RectTransform>().sizeDelta.x;
+                _selectNametMiniMap = _SelectminiMap.name;
+            }
+
+
+            _assignValuesToCam = true;
         }
-        
+
+      if (_SelectCam == null)
+        {
+            _SelectnameCam = "";
+            _SelecthighCam = 0;
+            _SelecttargetToFollow = null;
+            _Selectfow = 1;
+
+            _selectPositionXmap = 0;
+            _selectPositionYmap = 0;
+            _selectHighMap = 0;
+            _selectWidthMap = 0;
+            _selectNametMiniMap = "";
+
+        }
 
 
-        EditorGUILayout.LabelField("Cameras in scene: ", EditorStyles.miniBoldLabel);
+        EditorGUILayout.LabelField("Cameras en escena", EditorStyles.boldLabel);
+        //EditorGUILayout.LabelField("Cameras in scene: ", EditorStyles.miniBoldLabel);
         for (int i = 0; i < _camerasInScene.Count; i++)
         {
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.ObjectField(_camerasInScene[i].name, _camerasInScene[i], typeof(Camera), true);
             EditorGUILayout.ObjectField(_mapsInScene[i].name, _mapsInScene[i], typeof(RawImage), true);
 
-            if (GUILayout.Button("select"))
+            if (GUILayout.Button("Seleccionar"))
             {
                 _SelectCam = _camerasInScene[i];
       
-                _miniMap = _mapsInScene[i];
+                _SelectminiMap = _mapsInScene[i];
+                _assignValuesToCam = false;
             }
                
 
-            if (GUILayout.Button("delete"))
+            if (GUILayout.Button("Borrar"))
             {
                 DestroyImmediate(_camerasInScene[i].gameObject);
                 DestroyImmediate(_mapsInScene[i].gameObject);
                 AssetDatabase.DeleteAsset("Assets/Images/" + _texturesInScene[i].name + ".renderTexture");
                 _camerasInScene.RemoveAt(i);
                 _texturesInScene.RemoveAt(i);
-                if (_mapsInScene[i] != null)
+                //if (_mapsInScene[i] != null)
                 _mapsInScene.RemoveAt(i);
             }
                 
