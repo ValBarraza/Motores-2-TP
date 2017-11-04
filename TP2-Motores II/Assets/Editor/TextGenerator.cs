@@ -251,9 +251,9 @@ public class TextGenerator : EditorWindow
                 if (txt != null)
                 {
                     _textList.Add(item.gameObject);
-                    
-                    ButtonEliminate(item.gameObject);
+
                     ButtonConfig(item.gameObject);
+                    ButtonEliminate(item.gameObject);
                 }
             }
         }
