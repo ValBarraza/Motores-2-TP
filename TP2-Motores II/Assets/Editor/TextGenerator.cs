@@ -4,10 +4,6 @@ using UnityEngine;
 using UnityEditor;
 using UnityEngine.UI;
 
-//Que pueda crear un texto en el canvas y que pueda personalizarlo lo más posible desde la ventana
-//BACKGROUND DE TEXTO //MARCO ------- 
-//Ver como hacer un por defecto;
-
 public class TextGenerator : EditorWindow
 {
     #region CanvasFields
@@ -46,8 +42,6 @@ public class TextGenerator : EditorWindow
 
     private int _objectsCount;
     private Text _dinamicText;
-
-    //Canvas _canvas;
 
     [MenuItem("HUD/Text Generator")]
     public static void CreateWindow()
@@ -224,6 +218,9 @@ public class TextGenerator : EditorWindow
 
         _textToGenerateStatic = _textElement.GetComponent<Text>();
 
+        _textToGenerateStatic.color = _color;
+        var colorA = _textToGenerateStatic.color.a;
+        colorA = 255; //Por defecto;
         _textToGenerateStatic.font = _font;
         _textToGenerateStatic.text = _text;
         _textToGenerateStatic.fontSize = _fontSize;
