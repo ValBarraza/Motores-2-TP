@@ -1,12 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 using UnityEngine.UI;
 
 
 public class ButtonGenerator : EditorWindow
 {
+    public Vector2 scrollbar;
+
     public Sprite buttonSprite;
     public bool preserveImage;
 
@@ -25,7 +25,6 @@ public class ButtonGenerator : EditorWindow
     public bool onButton1;
     public bool onButton2;
     public Button buttonObject;
-    public Vector2 scrollinstr;
 
     private Canvas canvasMain;
     private Canvas _customCanvas;
@@ -56,6 +55,9 @@ public class ButtonGenerator : EditorWindow
     private void OnGUI()
     {
         EditorGUILayout.Space();
+        EditorGUILayout.Space();
+
+        scrollbar = EditorGUILayout.BeginScrollView(scrollbar);
 
         SetCanvas();
        
@@ -124,12 +126,13 @@ public class ButtonGenerator : EditorWindow
         {
             EditorGUILayout.BeginVertical(GUILayout.Height(120));
             EditorGUILayout.HelpBox("Sigue las instrucciones", MessageType.Info);
-            scrollinstr = EditorGUILayout.BeginScrollView(scrollinstr, true, true);
             GUILayout.Label("1_ Ve a la carpeta Assets y haz click en TESTEVENT\n2_ Crea un prefab con el script de la accion deseada en Assets\n3_ Haz click en el signo +\n4_ Arrastra y Tira el prefab con la acción dentro de RUNTIME ONLY\n5_ Ahora en NO FUNCTION, busca tu script y dentro de el, tu función\n6_ Una vez completo el TESTEVENT, arrastralo hasta ACCIÓN A EJECUTAR: y tiralo ahí");
-            EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
         }
-        
+
+        EditorGUILayout.Space();
+        EditorGUILayout.Space();
+
         data = (TestEvent)EditorGUILayout.ObjectField("Acción a ejecutar: ", data, typeof(TestEvent), false);
         if (data == null)
         {
@@ -140,9 +143,6 @@ public class ButtonGenerator : EditorWindow
             buttonObject.onClick = data.eventoClick;
         }
 
-        EditorGUILayout.Space();
-        EditorGUILayout.Space();
-        EditorGUILayout.Space();
         EditorGUILayout.Space();
         EditorGUILayout.Space();
         EditorGUILayout.Space();
@@ -161,6 +161,11 @@ public class ButtonGenerator : EditorWindow
         {
             EditorGUILayout.HelpBox("Recuerda que si hay alguna modificación que decides cambiar a último momento\nlo puedes hacer desde el inspector!", MessageType.Info);
         }
+
+        EditorGUILayout.EndScrollView();
+
+        EditorGUILayout.Space();
+        EditorGUILayout.Space();
     }
 
     public void TheButton()
@@ -191,7 +196,7 @@ public class ButtonGenerator : EditorWindow
         txtBNew.GetComponent<Text>().color = textBcolor;
         txtBNew.GetComponent<RectTransform>().position = new Vector3(buttonPos.x, buttonPos.y, buttonPos.z);
         txtBNew.GetComponent<RectTransform>().sizeDelta = new Vector2(lengthSize, widthSize);
-        txtBNew.GetComponent<Text>().alignment = TextAnchor.MiddleCenter; // mostrar opciones, capaz?
+        txtBNew.GetComponent<Text>().alignment = TextAnchor.MiddleCenter; 
 
         txtBNew.transform.SetParent(buttonNew.transform);
 
