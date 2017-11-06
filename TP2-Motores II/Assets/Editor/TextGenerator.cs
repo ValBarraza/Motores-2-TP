@@ -169,11 +169,11 @@ public class TextGenerator : EditorWindow
 
         EditorGUILayout.Space();
 
-        EditorGUILayout.LabelField("5º Más personalización (opcional)", EditorStyles.boldLabel);
+        /*EditorGUILayout.LabelField("5º Más personalización (opcional)", EditorStyles.boldLabel);
         _showPersStatic = EditorGUILayout.Foldout(_showPersStatic, "Personalizacion (opcional)");
         if (_showPersStatic) {
             StaticPersonalization();
-        }
+        }*/
 
         if (_font == null && _text == null)
         {
