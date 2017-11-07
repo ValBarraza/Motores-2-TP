@@ -5,11 +5,15 @@ using UnityEditor;
 
 public class HUDHelper : EditorWindow
 {
-    private List<Object> _myTools = new List<Object>();
     private string searchTools;
     private Object _focusObject;
-
     private GameObject target;
+    private List<string> _myTools = new List<string> {"texto", "fuente", "color", "boton", "minimapa", "tamaño", "camara", "canvas", "sprite" };
+    //private Dictionary<string, string> _windowOption= new Dictionary<string, string>();
+    private List<string> ventanas = new List<string> { "boton", "texto", "mapa" };
+    private Dictionary<string, List<string>> _auxi = new Dictionary<string, List<string>>();
+    private Dictionary<string, string> _auxi2 = new Dictionary<string,string>();
+
 
     [MenuItem("HUD/Helper")]
     static void myWindow()
@@ -20,6 +24,12 @@ public class HUDHelper : EditorWindow
     private void OnGUI()
     {
         minSize = new Vector2(525, 400);
+
+        GUILayout.Label("BUSCADOR DE HERRAMIENTA", EditorStyles.boldLabel);
+
+        searcherHelper();
+        _focusObject = EditorGUILayout.ObjectField(_focusObject, typeof(Object), true);
+
 
         GUILayout.Label("¿Desea aprender mas del HUD Generator?", EditorStyles.boldLabel);
 
@@ -69,55 +79,60 @@ public class HUDHelper : EditorWindow
         GUILayout.Label("Size texture: tamaño de la textura de tu minimapa.");
         GUILayout.Label("Size map: tamaño real del mapa a escalar.");
 
-        GUILayout.Label("BUSCADOR DE HERRAMIENTA", EditorStyles.boldLabel);
-
-        searcherHelper();
-        _focusObject = EditorGUILayout.ObjectField(_focusObject, typeof(Object), true);
+       
 
     }
 
 
     private void searcherHelper()
     {
+        /*_windowOption.Add("texto","generadorboton");
+        _windowOption.Add("texto", "generadortexto");
+        _windowOption.Add("fuente", "generadortexto");
+        _windowOption.Add("color", "generadorboton");
+        _windowOption.Add("color", "generadortexto");
+        _windowOption.Add("minimapa", "generadormapa");
+        _windowOption.Add("tamaño", "generadorboton");
+        _windowOption.Add("tamaño", "generadortexto");
+        _windowOption.Add("tamaño", "generadormapa");
+        _windowOption.Add("camara", "generadormapa");
+        _windowOption.Add("canvas", "generadorboton");
+        _windowOption.Add("canvas", "generadortexto");
+        _windowOption.Add("canvas", "generadormapa");
+        _windowOption.Add("sprite","generadorboton");*/
+
+        _auxi2.Add("texto",ventanas[0]+ventanas[1]);
+        
+
+
+
         var searching = searchTools;
         searchTools = EditorGUILayout.TextField(searching);
-        if (searching!= searchTools)
+
+        
+        foreach (var item in _myTools)
         {
-            _myTools.Clear();
-            string[] allTools = AssetDatabase.FindAssets(searchTools);
-            for (int i = allTools.Length-1; i>=0; i--)
+            if (item == searchTools)
             {
-                allTools[i] = AssetDatabase.GUIDToAssetPath(allTools[i]);
-                _myTools.Add(AssetDatabase.LoadAssetAtPath(allTools[i], typeof(Object)));
+                EditorGUILayout.LabelField("opciones de " + item+" se encuentran en windows de"+_auxi2[item]);
+               
             }
         }
 
-        for (int i = _myTools.Count-1 ; i >= 0; i--)
+        /*if (searching!=searchTools)
         {
-            EditorGUILayout.BeginHorizontal();
-
-            EditorGUILayout.LabelField(_myTools[i].ToString());
-
-            if (GUILayout.Button("Seleccionar"))
+            foreach (var item in _myTools)
             {
-                _focusObject = _myTools[i];
 
-                if (_focusObject.name.Contains("TextGenerator"))
+                if (item == searchTools)
                 {
-                    GetWindow<TextGenerator>();
-                }
-                if (_focusObject.name.Contains("MiniMapGenerator"))
-                {
-                    ((MiniMapGenerator)GetWindow(typeof(MiniMapGenerator))).Show();
-                    //GetWindow<MiniMapGenerator>();
-                }
-                if (_focusObject.name.Contains("ButtonGenerator"))
-                {
-                    GetWindow<ButtonGenerator>();
+                    Debug.Log(item);
                 }
             }
-            EditorGUILayout.EndHorizontal();
-        }
+        }*/
+        
+
+        
     }
     
 }
