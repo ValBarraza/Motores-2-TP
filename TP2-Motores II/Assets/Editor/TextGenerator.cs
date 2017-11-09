@@ -18,6 +18,8 @@ public class TextGenerator : EditorWindow
     bool _showCustomCanvas;
     #endregion
 
+    Vector2 scrollBarPosition;
+
     private List<GameObject> _textList;
     private GameObject _textElement;
     private TextElementConfig _classElement;
@@ -56,13 +58,16 @@ public class TextGenerator : EditorWindow
 
     void OnGUI()
     {
-        
+        scrollBarPosition = EditorGUILayout.BeginScrollView(scrollBarPosition);
+
         Repaint();
 
         if(canvasMain == null) SetCanvas();
         StaticText();
         DinamicText();
         if(canvasMain != null) ShowList();
+
+        EditorGUILayout.EndScrollView();
     }
     void SetCanvas()
     {
@@ -219,8 +224,6 @@ public class TextGenerator : EditorWindow
         _textToGenerateStatic = _textElement.GetComponent<Text>();
 
         _textToGenerateStatic.color = _color;
-        var colorA = _textToGenerateStatic.color.a;
-        colorA = 255; //Por defecto;
         _textToGenerateStatic.font = _font;
         _textToGenerateStatic.text = _text;
         _textToGenerateStatic.fontSize = _fontSize;
@@ -238,7 +241,6 @@ public class TextGenerator : EditorWindow
         _showList = EditorGUILayout.Foldout(_showList, "Mostrar lista");
         if (_showList)
         {
-            EditorGUILayout.BeginVertical();
             foreach (RectTransform item in canvasMain.GetComponentInChildren<RectTransform>())
             {
                 string name = item.name;
@@ -247,10 +249,14 @@ public class TextGenerator : EditorWindow
                 var txt = item.GetComponent<Text>();
                 if (txt != null)
                 {
-                    _textList.Add(item.gameObject);
+                    var parnet = txt.gameObject.GetComponentInParent<Canvas>();
+                    if (parnet !=null)
+                    {
+                        _textList.Add(item.gameObject);
 
-                    ButtonConfig(item.gameObject);
-                    ButtonEliminate(item.gameObject);
+                        ButtonConfig(item.gameObject);
+                        ButtonEliminate(item.gameObject);
+                    }                   
                 }
             }
         }
