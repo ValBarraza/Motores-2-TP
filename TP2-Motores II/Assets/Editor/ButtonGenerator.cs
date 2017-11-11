@@ -91,7 +91,7 @@ public class ButtonGenerator : EditorWindow
 
         EditorGUILayout.LabelField("4ª Texto", EditorStyles.boldLabel);
         buttonText = EditorGUILayout.TextField("Texto: ", buttonText, GUILayout.Height(50));
-        fontObject = (Font)EditorGUILayout.ObjectField("Fuente: ", fontObject, typeof(Font), false);
+        fontObject = (Font)EditorGUILayout.ObjectField("Fuente: ", fontObject, typeof(Font), true);
         if (fontObject == null)
         {
             EditorGUILayout.HelpBox("Si no eliges una fuente por defecto la letra es Arial", MessageType.Warning);
@@ -120,7 +120,7 @@ public class ButtonGenerator : EditorWindow
             EditorUtility.FocusProjectWindow();
             Selection.activeObject = asset;
             data = (TestEvent)AssetDatabase.LoadAssetAtPath("Assets/" + typeof(TestEvent).ToString() + ".asset", typeof(TestEvent));
-            onButton1 = true;    
+            onButton1 = true;
         }
         
         if(onButton1 == true)
@@ -150,10 +150,12 @@ public class ButtonGenerator : EditorWindow
         EditorGUILayout.Space();
         EditorGUILayout.Space();
 
-        if (data != null)
+        if (data != null && onButton1 == false)
         {
             EditorGUILayout.HelpBox("No estas usando un TESTEVENT nuevo, puede contener una acción no deseada", MessageType.Warning);
-
+        }
+            if (data != null)
+        {
             if (GUILayout.Button("Listo!!! Ahora Construye!"))
             {
                 TheButton();
@@ -180,8 +182,6 @@ public class ButtonGenerator : EditorWindow
         buttonNew.AddComponent<Image>();
         buttonNew.GetComponent<Image>().preserveAspect = preserveImage;
         buttonNew.GetComponent<Image>().sprite = buttonSprite;
-        //buttonNew.GetComponent<Image>().fillMethod =;
-        //buttonNew.GetComponent<Image>().fillCenter = true;
         buttonNew.AddComponent<Button>();
         buttonNew.GetComponent<RectTransform>().position = new Vector3(buttonPos.x, buttonPos.y, buttonPos.z);
         buttonNew.GetComponent<RectTransform>().sizeDelta = new Vector2(lengthSize, widthSize);
