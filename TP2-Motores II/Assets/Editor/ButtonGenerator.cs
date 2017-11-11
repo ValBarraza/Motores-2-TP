@@ -103,7 +103,7 @@ public class ButtonGenerator : EditorWindow
         }
         if (fontSize >0 && fontSize <= 5)
         {
-            EditorGUILayout.HelpBox("La letra es tan pequeña que es probable que no sea legible", MessageType.Warning);
+            EditorGUILayout.HelpBox("La letra es muy pequeña, probablemente no sea legible", MessageType.Warning);
         }
         textBcolor = EditorGUILayout.ColorField("Color: ", textBcolor);
 
@@ -119,6 +119,7 @@ public class ButtonGenerator : EditorWindow
             AssetDatabase.Refresh();
             EditorUtility.FocusProjectWindow();
             Selection.activeObject = asset;
+            data = (TestEvent)AssetDatabase.LoadAssetAtPath("Assets/" + typeof(TestEvent).ToString() + ".asset", typeof(TestEvent));
             onButton1 = true;    
         }
         
@@ -126,7 +127,7 @@ public class ButtonGenerator : EditorWindow
         {
             EditorGUILayout.BeginVertical(GUILayout.Height(120));
             EditorGUILayout.HelpBox("Sigue las instrucciones", MessageType.Info);
-            GUILayout.Label("1_ Ve a la carpeta Assets y haz click en TESTEVENT\n2_ Crea un prefab con el script de la accion deseada en Assets\n3_ Haz click en el signo +\n4_ Arrastra y Tira el prefab con la acción dentro de RUNTIME ONLY\n5_ Ahora en NO FUNCTION, busca tu script y dentro de el, tu función\n6_ Una vez completo el TESTEVENT, arrastralo hasta ACCIÓN A EJECUTAR: y tiralo ahí");
+            GUILayout.Label("1_ Crea o asigna un prefab con el script de la accion deseada en Assets\n2_ Haz click en el signo + del TESTEVENT que se encuentra en ACCIÓN A EJECUTAR:\n3_ Arrastra y Tira el prefab con la acción dentro de RUNTIME ONLY\n5_ Ahora en NO FUNCTION, busca tu script y dentro de el, tu función");
             EditorGUILayout.EndVertical();
         }
 
@@ -151,6 +152,8 @@ public class ButtonGenerator : EditorWindow
 
         if (data != null)
         {
+            EditorGUILayout.HelpBox("No estas usando un TESTEVENT nuevo, puede contener una acción no deseada", MessageType.Warning);
+
             if (GUILayout.Button("Listo!!! Ahora Construye!"))
             {
                 TheButton();
