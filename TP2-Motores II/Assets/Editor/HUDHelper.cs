@@ -10,8 +10,8 @@ public class HUDHelper : EditorWindow
     private GameObject target;
     private List<string> _myTools = new List<string> {"texto", "fuente", "color", "boton", "minimapa", "tamaño", "camara", "canvas", "sprite" };
     private List<string> ventanas = new List<string> { "genboton", "gentexto", "genmapa" };
-    //private Dictionary<string, List<string>> _auxi1 = new Dictionary<string, List<string>>();
-    private Dictionary<string, string> _auxi2 = new Dictionary<string,string>();
+    private Dictionary<string, List<string>> _auxi1 = new Dictionary<string, List<string>>();
+    private Dictionary<string, string> _auxi2 = new Dictionary<string, string>();
 
 
     [MenuItem("HUD/Helper")]
@@ -85,21 +85,18 @@ public class HUDHelper : EditorWindow
 
     private void searcherHelper()
     {
-        _auxi2.Add("texto","sarasa");
+        _auxi2.Add("texto","SARASA");
 
         var searching = searchTools;
         searchTools = EditorGUILayout.TextField(searching);
 
 
-        if (searching!=searchTools)
+        foreach (var item in _myTools)
         {
-            foreach (var item in _myTools)
-            {
 
-                if (item == searchTools)
-                {
-                    EditorGUILayout.LabelField("opciones de " + item + " se encuentran en windows de" );
-                }
+            if (item == searchTools)
+            {
+                EditorGUILayout.LabelField("opciones de " + item + " se encuentran en windows de");
             }
         }
         
