@@ -5,6 +5,7 @@ using UnityEditor;
 
 public class HUDHelper : EditorWindow
 {
+    private string searching;
     private string searchTools;
     private Object _focusObject;
     private GameObject target;
@@ -12,6 +13,8 @@ public class HUDHelper : EditorWindow
     private List<string> ventanas = new List<string> { "genboton", "gentexto", "genmapa" };
     private Dictionary<string, List<string>> _auxi1 = new Dictionary<string, List<string>>();
     private Dictionary<string, string> _auxi2 = new Dictionary<string, string>();
+    public bool startSearch = false;
+
 
 
     [MenuItem("HUD/Helper")]
@@ -20,14 +23,39 @@ public class HUDHelper : EditorWindow
         ((HUDHelper)GetWindow(typeof(HUDHelper))).Show();
     }
 
+    private void Oneable()
+    {
+        if (startSearch == true)
+        {
+            Debug.Log("entre");
+            _auxi2.Add("texto", "SARASA");
+        }
+
+        //_auxi2.Add("texto", "SARASA");
+    }
+     
     private void OnGUI()
     {
         minSize = new Vector2(525, 400);
 
         GUILayout.Label("BUSCADOR DE HERRAMIENTA", EditorStyles.boldLabel);
 
-        searcherHelper();
-        _focusObject = EditorGUILayout.ObjectField(_focusObject, typeof(Object), true);
+        searching = searchTools;
+        searchTools = EditorGUILayout.TextField(searching);
+        if (searching!= searchTools)
+        {
+            foreach (var item in _myTools)
+            {
+                if (item == searchTools)
+                {
+                    Debug.Log("entre");
+                    searcherHelper();
+                }
+            }
+            
+        }
+        
+        //_focusObject = EditorGUILayout.ObjectField(_focusObject, typeof(Object), true);
 
 
         GUILayout.Label("¿Desea aprender mas del HUD Generator?", EditorStyles.boldLabel);
@@ -85,22 +113,22 @@ public class HUDHelper : EditorWindow
 
     private void searcherHelper()
     {
-        _auxi2.Add("texto","SARASA");
 
-        var searching = searchTools;
-        searchTools = EditorGUILayout.TextField(searching);
-
-
-        foreach (var item in _myTools)
+        EditorGUILayout.LabelField("opciones de " + searchTools + " se encuentran en windows de");
+        startSearch = true;
+        //_auxi2.Add("texto", "SARASA");
+        Debug.Log("entre al search");
+        /*foreach (var item in _myTools)
         {
-
             if (item == searchTools)
             {
                 EditorGUILayout.LabelField("opciones de " + item + " se encuentran en windows de");
+                startSearch = true;
             }
-        }
+        }*/
         
     }
     
+   
 }
 
