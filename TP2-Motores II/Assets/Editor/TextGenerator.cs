@@ -242,21 +242,22 @@ public class TextGenerator : EditorWindow
         if (_showList)
         {
             foreach (RectTransform item in canvasMain.GetComponentInChildren<RectTransform>())
-            {
-                string name = item.name;
-                EditorGUILayout.ObjectField(name, item, typeof(RectTransform), false);
+            {                
+                var txt = item.GetComponent<Text>();                
 
-                var txt = item.GetComponent<Text>();
                 if (txt != null)
                 {
-                    var parnet = txt.gameObject.GetComponentInParent<Canvas>();
-                    if (parnet !=null)
+                    var parent = txt.gameObject.GetComponentInParent<Button>();
+                    if (parent == null)
                     {
+                        string name = item.name;
+                        EditorGUILayout.ObjectField(name, item, typeof(RectTransform), false);
+
                         _textList.Add(item.gameObject);
 
                         ButtonConfig(item.gameObject);
                         ButtonEliminate(item.gameObject);
-                    }                   
+                    }
                 }
             }
         }

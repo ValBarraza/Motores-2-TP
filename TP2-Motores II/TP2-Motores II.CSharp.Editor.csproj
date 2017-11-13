@@ -124,7 +124,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Editor\ButtonGenerator.cs" />
-    <Compile Include="Assets\Editor\HUDGenerator.cs" />
     <Compile Include="Assets\Editor\HUDHelper.cs" />
     <Compile Include="Assets\Editor\MiniMap Generator.cs" />
     <Compile Include="Assets\Editor\TextElementConfig.cs" />
