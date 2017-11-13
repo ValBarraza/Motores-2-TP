@@ -9,9 +9,8 @@ public class HUDHelper : EditorWindow
     private Object _focusObject;
     private GameObject target;
     private List<string> _myTools = new List<string> {"texto", "fuente", "color", "boton", "minimapa", "tamaño", "camara", "canvas", "sprite" };
-    //private Dictionary<string, string> _windowOption= new Dictionary<string, string>();
-    private List<string> ventanas = new List<string> { "boton", "texto", "mapa" };
-    private Dictionary<string, List<string>> _auxi = new Dictionary<string, List<string>>();
+    private List<string> ventanas = new List<string> { "genboton", "gentexto", "genmapa" };
+    //private Dictionary<string, List<string>> _auxi1 = new Dictionary<string, List<string>>();
     private Dictionary<string, string> _auxi2 = new Dictionary<string,string>();
 
 
@@ -86,52 +85,23 @@ public class HUDHelper : EditorWindow
 
     private void searcherHelper()
     {
-        /*_windowOption.Add("texto","generadorboton");
-        _windowOption.Add("texto", "generadortexto");
-        _windowOption.Add("fuente", "generadortexto");
-        _windowOption.Add("color", "generadorboton");
-        _windowOption.Add("color", "generadortexto");
-        _windowOption.Add("minimapa", "generadormapa");
-        _windowOption.Add("tamaño", "generadorboton");
-        _windowOption.Add("tamaño", "generadortexto");
-        _windowOption.Add("tamaño", "generadormapa");
-        _windowOption.Add("camara", "generadormapa");
-        _windowOption.Add("canvas", "generadorboton");
-        _windowOption.Add("canvas", "generadortexto");
-        _windowOption.Add("canvas", "generadormapa");
-        _windowOption.Add("sprite","generadorboton");*/
-
-        _auxi2.Add("texto",ventanas[0]+ventanas[1]);
-        
-
-
+        _auxi2.Add("texto","sarasa");
 
         var searching = searchTools;
         searchTools = EditorGUILayout.TextField(searching);
 
-        
-        foreach (var item in _myTools)
-        {
-            if (item == searchTools)
-            {
-                EditorGUILayout.LabelField("opciones de " + item+" se encuentran en windows de"+_auxi2[item]);
-               
-            }
-        }
 
-        /*if (searching!=searchTools)
+        if (searching!=searchTools)
         {
             foreach (var item in _myTools)
             {
 
                 if (item == searchTools)
                 {
-                    Debug.Log(item);
+                    EditorGUILayout.LabelField("opciones de " + item + " se encuentran en windows de" );
                 }
             }
-        }*/
-        
-
+        }
         
     }
     
