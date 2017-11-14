@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using System.Linq;
 
 public class HUDHelper : EditorWindow
 {
@@ -12,7 +13,7 @@ public class HUDHelper : EditorWindow
     private List<string> _myTools = new List<string> {"texto", "fuente", "color", "boton", "minimapa", "tamaño", "camara", "canvas", "sprite" };
     private List<string> ventanas = new List<string> { "genboton", "gentexto", "genmapa" };
     private Dictionary<string, List<string>> _auxi1 = new Dictionary<string, List<string>>();
-    private Dictionary<string, string> _auxi2 = new Dictionary<string, string>();
+    //private Dictionary<string, string> _auxi2 = new Dictionary<string, string>();
     public bool startSearch = false;
 
 
@@ -25,13 +26,16 @@ public class HUDHelper : EditorWindow
 
     private void Oneable()
     {
-        if (startSearch == true)
+        /*if (startSearch == true)
         {
             Debug.Log("entre");
             _auxi2.Add("texto", "SARASA");
-        }
+           
+            Debug.Log(startSearch);
+        }*/
 
-        //_auxi2.Add("texto", "SARASA");
+        
+        
     }
      
     private void OnGUI()
@@ -48,13 +52,21 @@ public class HUDHelper : EditorWindow
             {
                 if (item == searchTools)
                 {
-                    Debug.Log("entre");
-                    searcherHelper();
+                    Debug.Log(startSearch);
+                    startSearch = true;
+                    //_auxi2.Add("texto", "generador de texto");
+                    //_auxi2.Add("texto", "casa");
+                    //Debug.Log(_auxi2[_auxi2.Keys.ElementAt(1)]);
                 }
             }
             
         }
-        
+
+        if (startSearch && searchTools.Length>0)
+        {
+            //GUILayout.Label("opciones de " + searchTools + " se encuentran en windows de "+ _auxi2[_auxi2.Keys.ElementAt(0)]);
+            GUILayout.Label("opciones de " + searchTools + " se encuentran en windows de " + _auxi1[_auxi1.Keys.ElementAt(0)]);
+        }
         //_focusObject = EditorGUILayout.ObjectField(_focusObject, typeof(Object), true);
 
 
@@ -114,10 +126,10 @@ public class HUDHelper : EditorWindow
     private void searcherHelper()
     {
 
-        EditorGUILayout.LabelField("opciones de " + searchTools + " se encuentran en windows de");
-        startSearch = true;
+        
+        
         //_auxi2.Add("texto", "SARASA");
-        Debug.Log("entre al search");
+        //Debug.Log(startSearch);
         /*foreach (var item in _myTools)
         {
             if (item == searchTools)
