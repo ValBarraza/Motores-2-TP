@@ -41,7 +41,7 @@ public class HUDHelper : EditorWindow
     private void OnGUI()
     {
         minSize = new Vector2(525, 400);
-
+       
         GUILayout.Label("BUSCADOR DE HERRAMIENTA", EditorStyles.boldLabel);
 
         searching = searchTools;
@@ -57,6 +57,23 @@ public class HUDHelper : EditorWindow
                     //_auxi2.Add("texto", "generador de texto");
                     //_auxi2.Add("texto", "casa");
                     //Debug.Log(_auxi2[_auxi2.Keys.ElementAt(1)]);
+                    List<string> text = new List<string>() { "generadorboton", "generadortexto" };
+                    List<string> color = new List<string>() { "generadorboton", "generadortexto" };
+                    List<string> size = new List<string>() { "generadorboton", "generadortexto", "generadormapa" };
+                    List<string> canvas = new List<string>() { "generadorboton", "generadortexto", "generadormapa" };
+                    List<string> font = new List<string>() { "generadortexto" };
+                    List<string> minimap = new List<string>() { "generadormapa" }; 
+                    List<string> camara = new List<string>() { "generadormapa" };
+                    List<string> sprite = new List<string>() { "generadorboton" };
+                    _auxi1.Add("texto",text);
+                    _auxi1.Add("color",color);
+                    _auxi1.Add("tamaño",size);
+                    _auxi1.Add("canvas",canvas);
+                    _auxi1.Add("fuente",font);
+                    _auxi1.Add("minimapa",minimap);
+                    _auxi1.Add("camara",camara);
+                    _auxi1.Add("sprite",sprite);
+
                 }
             }
             
@@ -65,7 +82,16 @@ public class HUDHelper : EditorWindow
         if (startSearch && searchTools.Length>0)
         {
             //GUILayout.Label("opciones de " + searchTools + " se encuentran en windows de "+ _auxi2[_auxi2.Keys.ElementAt(0)]);
-            GUILayout.Label("opciones de " + searchTools + " se encuentran en windows de " + _auxi1[_auxi1.Keys.ElementAt(0)]);
+            foreach (var item in _auxi1[searchTools])
+            {
+                GUILayout.Label("opciones de " + searchTools + " se encuentran en windows de " + item);
+            }
+            //GUILayout.Label("opciones de " + searchTools + " se encuentran en windows de " + _auxi1[searchTools]);
+
+        }
+        else
+        {
+            startSearch = false;
         }
         //_focusObject = EditorGUILayout.ObjectField(_focusObject, typeof(Object), true);
 
@@ -126,8 +152,21 @@ public class HUDHelper : EditorWindow
     private void searcherHelper()
     {
 
-        
-        
+        /*_windowOption.Add("texto","generadorboton");
+        _windowOption.Add("texto", "generadortexto");
+        _windowOption.Add("fuente", "generadortexto");
+        _windowOption.Add("color", "generadorboton");
+        _windowOption.Add("color", "generadortexto");
+        _windowOption.Add("minimapa", "generadormapa");
+        _windowOption.Add("tamaño", "generadorboton");
+        _windowOption.Add("tamaño", "generadortexto");
+        _windowOption.Add("tamaño", "generadormapa");
+        _windowOption.Add("camara", "generadormapa");
+        _windowOption.Add("canvas", "generadorboton");
+        _windowOption.Add("canvas", "generadortexto");
+        _windowOption.Add("canvas", "generadormapa");
+        _windowOption.Add("sprite","generadorboton");*/
+
         //_auxi2.Add("texto", "SARASA");
         //Debug.Log(startSearch);
         /*foreach (var item in _myTools)
@@ -138,9 +177,9 @@ public class HUDHelper : EditorWindow
                 startSearch = true;
             }
         }*/
-        
+
     }
-    
-   
+
+
 }
 
