@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using UnityEngine.UI;
-
+using System.IO;
 public class MiniMapGenerator : EditorWindow {
 
 
     Vector2 scrollBarPosition;
     GameObject[] TagsOfMiniMap = new GameObject[] { };
+    public  Dictionary<RawImage,Camera> MapsAndCam = new Dictionary<RawImage,Camera>();
     
 
     //CANVAS
@@ -23,7 +24,7 @@ public class MiniMapGenerator : EditorWindow {
     private float fow;
     private string _nameCam;
     private GameObject _targetToFollow;
-    private List<Camera> _camerasInScene = new List<Camera>();
+    public List<Camera> _camerasInScene = new List<Camera>();
 
     //SELECT CAM
     private Camera _SelectCam;
@@ -49,7 +50,7 @@ public class MiniMapGenerator : EditorWindow {
     private float _positionXmap;
     private float _positionYmap;
     private string _nameMap;
-    private List<RawImage> _mapsInScene = new List<RawImage>();
+    public List<RawImage> _mapsInScene = new List<RawImage>();
 
     //SELECT MINI MAP
     private RawImage _SelectminiMap;
@@ -72,8 +73,14 @@ public class MiniMapGenerator : EditorWindow {
     private Texture2D trest;
     private TextureImporter trestas;
    
-   
-   
+   //SCRIPTABLE OBJECT
+   private string namePath;
+   private string nameMiniMapConfig;
+   private MiniMapConig config;
+    private bool activeConfigAdvance;
+    private bool loadConfig;
+    private bool saveConig;
+
 
 
 
@@ -84,37 +91,7 @@ public class MiniMapGenerator : EditorWindow {
     }
 
 
-    //private void OnFocus()
-    //{
-    //    if (_camerasInScene.Count == 0)
-    //    {
-    //        for (int i = 0; i < TagsOfMiniMap.Length; i++)
-    //        {
-    //            if (TagsOfMiniMap[i] != null)
-    //            {
-    //                if (TagsOfMiniMap[i].GetComponent<Camera>() != null)
-    //                    _camerasInScene.Add(TagsOfMiniMap[i].GetComponent<Camera>());
-
-    //                if (TagsOfMiniMap[i].GetComponent<RawImage>() != null)
-    //                {
-    //                    _mapsInScene.Add(TagsOfMiniMap[i].GetComponent<RawImage>());
-    //                    assetLoad = AssetDatabase.LoadAllAssetsAtPath("Assets/Images/"+ TagsOfMiniMap[i].name+ ".renderTexture");
-    //                    for (int j = 0; j < assetLoad.Length; j++)
-    //                    {
-    //                        GameObject aux = (GameObject)assetLoad[j];
-    //                        _texturesInScene.Add(aux.GetComponent<RenderTexture>());
-    //                    }
-                       
-    //                }
-                       
-    //            }
-
-
-    //        }
-    //    }
-
-
-    //}
+ 
 
     private void OnEnable()
     {
@@ -133,6 +110,7 @@ public class MiniMapGenerator : EditorWindow {
                         _camerasInScene.Add(TagsOfMiniMap[i].GetComponent<Camera>());
                         RenderTexture aux = TagsOfMiniMap[i].GetComponent<Camera>().targetTexture;
                         _texturesInScene.Add(aux);
+                        
                     }
                         
 
@@ -143,13 +121,26 @@ public class MiniMapGenerator : EditorWindow {
 
                     }
 
-                }
+                   
 
+
+
+                }
+            
+ 
 
             }
         }
 
+        if (_camerasInScene.Count > 0)
+        {
+            for (int i = 0; i < _camerasInScene.Count; i++)
+            {
+                MapsAndCam.Add(_mapsInScene[i], _camerasInScene[i]);
+                //Debug.Log(MapsAndCam[_mapsInScene[i]].name);
+            }
 
+        }
 
 
 
@@ -166,6 +157,8 @@ public class MiniMapGenerator : EditorWindow {
 
     }
 
+    
+
     private void OnGUI()
     {
         //GUI.DrawTexture(GUILayoutUtility.GetRect(335, 241), (Texture2D)Resources.Load("advice"));
@@ -177,10 +170,13 @@ public class MiniMapGenerator : EditorWindow {
 
         scrollBarPosition = EditorGUILayout.BeginScrollView(scrollBarPosition);
 
-
+     
 
 
         Intro();
+
+        
+
         EditorGUILayout.Space();
         EditorGUILayout.Space();
         EditorGUILayout.Space();
@@ -208,7 +204,6 @@ public class MiniMapGenerator : EditorWindow {
 
     //SECCIONES
    
-
 
     void Intro()
     {
@@ -360,20 +355,66 @@ public class MiniMapGenerator : EditorWindow {
     //RECONFIGURACION
     void SetOfCamerasCreated()
     {
-        EditorGUILayout.LabelField("Seleccion de camara", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField("CAMARAS Y MINIMAPS EN ESCENA", EditorStyles.boldLabel);
+
+
+        
         _SelectCam = (Camera)EditorGUILayout.ObjectField("Camara selecionada", _SelectCam, typeof(Camera), false);
         _SelectminiMap = (RawImage)EditorGUILayout.ObjectField("Mapa correspondiente", _SelectminiMap, typeof(RawImage), false);
-        
-  
-        EditorGUILayout.Space();
 
+
+
+
+        EditorGUILayout.LabelField("Cameras en escena", EditorStyles.boldLabel);
+        //EditorGUILayout.LabelField("Cameras in scene: ", EditorStyles.miniBoldLabel);
+        for (int i = 0; i < _camerasInScene.Count; i++)
+        {
+
+            if (_camerasInScene[i] != null && _mapsInScene[i] != null)
+            {
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.ObjectField(_camerasInScene[i].name, _camerasInScene[i], typeof(Camera), false);
+                EditorGUILayout.ObjectField(_mapsInScene[i].name, _mapsInScene[i], typeof(RawImage), false);
+
+                if (GUILayout.Button("Seleccionar"))
+                {
+                    _SelectCam = _camerasInScene[i];
+
+                    _SelectminiMap = _mapsInScene[i];
+                    _assignValuesToCam = false;
+                }
+
+
+                if (GUILayout.Button("Borrar"))
+                {
+                    DestroyImmediate(_camerasInScene[i].gameObject);
+                    DestroyImmediate(_mapsInScene[i].gameObject);
+                    AssetDatabase.DeleteAsset("Assets/Images/" + _texturesInScene[i].name + ".renderTexture");
+                    _camerasInScene.RemoveAt(i);
+                    _texturesInScene.RemoveAt(i);
+                    //if (_mapsInScene[i] != null)
+                    _mapsInScene.RemoveAt(i);
+                }
+
+
+
+                EditorGUILayout.EndHorizontal();
+
+            }
+
+
+        }
+
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Camara", EditorStyles.boldLabel);
         _SelectnameCam = EditorGUILayout.TextField("nombre Camara ", _SelectnameCam);
         _SelecthighCam = EditorGUILayout.IntField("altura Camara", _SelecthighCam );  
         _Selectfow = EditorGUILayout.FloatField("Rango de Vision", _Selectfow);
         _SelecttargetToFollow = (GameObject)EditorGUILayout.ObjectField("Target de la Camara", _SelecttargetToFollow, typeof(GameObject), true);
 
         EditorGUILayout.Space();
-
+        EditorGUILayout.LabelField("Minimap", EditorStyles.boldLabel);
         _selectNametMiniMap = EditorGUILayout.TextField("nombre MiniMapa ", _selectNametMiniMap);
         EditorGUILayout.BeginHorizontal();
         
@@ -393,6 +434,113 @@ public class MiniMapGenerator : EditorWindow {
         EditorGUILayout.LabelField(" Ancho: ", EditorStyles.miniBoldLabel, GUILayout.Width(35));
         _selectWidthMap = EditorGUILayout.IntField(_selectWidthMap, GUILayout.Width(50));
         EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.Space();
+
+        EditorGUILayout.LabelField("AVANZADO: ", EditorStyles.boldLabel);
+        activeConfigAdvance = EditorGUILayout.Toggle("Cargar o Guardar config del miniMap", activeConfigAdvance,GUILayout.Width(400));
+
+        EditorGUILayout.Space();
+        if (activeConfigAdvance)
+        {
+            loadConfig = EditorGUILayout.Foldout(loadConfig, "Cargar Config");
+            if (loadConfig)
+            {
+                EditorGUILayout.BeginHorizontal();
+                config = (MiniMapConig)EditorGUILayout.ObjectField("configuracion", config, typeof(MiniMapConig), true);
+
+                if (GUILayout.Button("Cargar Config"))
+                {
+                    if (config != null)
+                    {
+                        if (_SelectminiMap != null)
+                        {
+
+                            _SelectnameCam = config.nombreCamara;
+                            _SelecthighCam = config.alturaCamara;
+                            _Selectfow = config.rangoVision;
+                            _selectPositionXmap = config.posicionMiniMap.x;
+                            _selectPositionYmap = config.posicionMiniMap.x;
+                            _selectHighMap = (int)config.TamanoMiniMap.y;
+                            _selectWidthMap = (int)config.TamanoMiniMap.x;
+                            _selectNametMiniMap = config.nombreMiniMapa;
+                        }
+                    }
+                }
+                EditorGUILayout.EndHorizontal();
+            }
+
+
+            EditorGUILayout.Space();
+            EditorGUILayout.Space();
+
+            saveConig = EditorGUILayout.Foldout(saveConig, "Guardar Config");
+            if (saveConig)
+            {
+
+                namePath = EditorGUILayout.TextField("nombre Carpeta", namePath);
+                nameMiniMapConfig = EditorGUILayout.TextField("nombre config", nameMiniMapConfig);
+
+
+                if (GUILayout.Button("Guartdar Config"))
+                {
+
+                    if (_SelectminiMap != null)
+                    {
+
+                        if (namePath == null)
+                        {
+                            MiniMapScriptableObject.CreatedAssetConfigMiniMap<MiniMapConig>("", nameMiniMapConfig);
+                        }
+
+                        else if (File.Exists("Assets/"+namePath) || Directory.Exists("Assets/" + namePath))
+                        {
+                            MiniMapScriptableObject.CreatedAssetConfigMiniMap<MiniMapConig>(namePath, nameMiniMapConfig);
+
+                            MiniMapConig aux = (MiniMapConig)AssetDatabase.LoadAssetAtPath("Assets/" + namePath + "/" + nameMiniMapConfig + ".asset", typeof(MiniMapConig));
+                            aux.nombreCamara = _SelectCam.name;
+                            aux.alturaCamara = (int)_SelectCam.transform.position.y;
+                            aux.rangoVision = (int)_SelectCam.fieldOfView;
+                            aux.nombreMiniMapa = _SelectminiMap.name;
+                            aux.posicionMiniMap = new Vector2(_selectPositionXmap, _selectPositionYmap);
+                            aux.TamanoMiniMap = new Vector2(_selectWidthMap, _selectHighMap);
+                            AssetDatabase.SaveAssets();
+                            AssetDatabase.Refresh();
+                        }
+
+                        else
+                        {
+
+                            string createdNewFolder = AssetDatabase.CreateFolder("Assets", namePath);
+                            string newFolder = AssetDatabase.GUIDToAssetPath(createdNewFolder);
+                            MiniMapScriptableObject.CreatedAssetConfigMiniMap<MiniMapConig>(namePath, nameMiniMapConfig);
+
+                            MiniMapConig aux = (MiniMapConig)AssetDatabase.LoadAssetAtPath("Assets/" + namePath + "/" + nameMiniMapConfig + ".asset", typeof(MiniMapConig));
+                            aux.nombreCamara = _SelectCam.name;
+                            aux.alturaCamara = (int)_SelectCam.transform.position.y;
+                            aux.rangoVision = (int)_SelectCam.fieldOfView;
+                            aux.nombreMiniMapa = _SelectminiMap.name;
+                            aux.posicionMiniMap = new Vector2(_selectPositionXmap,_selectPositionYmap);
+                            aux.TamanoMiniMap = new Vector2(_selectWidthMap, _selectHighMap);
+                            AssetDatabase.SaveAssets();
+                            AssetDatabase.Refresh();
+
+
+
+                        }
+
+
+                    }
+                    
+                }
+            }
+                
+          
+
+           
+        }
+
+   
 
         if (_assignValuesToCam && _SelectCam != null && _SelectminiMap !=null)
         {
@@ -454,45 +602,7 @@ public class MiniMapGenerator : EditorWindow {
         }
 
 
-        EditorGUILayout.LabelField("Cameras en escena", EditorStyles.boldLabel);
-        //EditorGUILayout.LabelField("Cameras in scene: ", EditorStyles.miniBoldLabel);
-        for (int i = 0; i < _camerasInScene.Count; i++)
-        {
-
-            if (_camerasInScene[i] != null && _mapsInScene[i] != null)
-            {
-                EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.ObjectField(_camerasInScene[i].name, _camerasInScene[i], typeof(Camera), false);
-                EditorGUILayout.ObjectField(_mapsInScene[i].name, _mapsInScene[i], typeof(RawImage), false);
-
-                if (GUILayout.Button("Seleccionar"))
-                {
-                    _SelectCam = _camerasInScene[i];
-
-                    _SelectminiMap = _mapsInScene[i];
-                    _assignValuesToCam = false;
-                }
-
-
-                if (GUILayout.Button("Borrar"))
-                {
-                    DestroyImmediate(_camerasInScene[i].gameObject);
-                    DestroyImmediate(_mapsInScene[i].gameObject);
-                    AssetDatabase.DeleteAsset("Assets/Images/" + _texturesInScene[i].name + ".renderTexture");
-                    _camerasInScene.RemoveAt(i);
-                    _texturesInScene.RemoveAt(i);
-                    //if (_mapsInScene[i] != null)
-                    _mapsInScene.RemoveAt(i);
-                }
-
-
-
-                EditorGUILayout.EndHorizontal();
-
-            }
-
-            
-        }
+      
 
 
         EditorGUILayout.Space();
